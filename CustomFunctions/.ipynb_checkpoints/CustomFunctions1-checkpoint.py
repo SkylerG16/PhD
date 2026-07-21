@@ -484,6 +484,8 @@ def make_ChadMapZ():
 
 
 
+
+
 def _get_elevation_groups(RadarXR: xr.Dataset) -> dict:
     """
     Groups time indices by rounded elevation angle (to nearest 0.1 degree).
@@ -500,164 +502,113 @@ def _get_elevation_groups(RadarXR: xr.Dataset) -> dict:
     return groups
 
 
-def _variance_filter(values: np.ndarray, min_valid: int = 1) -> float:
+def _combined_filter(values: np.ndarray):
     """
-    Population variance of valid (non-NaN) values in a window.
-    Returns 0.0 if only one valid value exists, NaN if none exist.
+    Returns both variance and count in a single pass over the window.
     """
     valid = values[~np.isnan(values)]
     n = len(valid)
     if n == 0:
-        return np.nan
+        return np.nan, np.nan
     if n == 1:
-        return 0.0
-    return np.var(valid)  # population variance (ddof=0)
+        return 0.0, 1.0
+    return np.var(valid), float(n)
 
 
-def _count_filter(values: np.ndarray) -> float:
-    """
-    Count of valid (non-NaN) values in a window.
-    """
-    return np.sum(~np.isnan(values)).astype(float)
-
-
-def _apply_grid_function(
-    RadarXR: xr.Dataset,
-    variable: str,
-    grid_size: int,
-    fill_value,
-    filter_func,
-    result_name: str
-):
-    """
-    Core engine. Applies a given filter function over a rolling azimuth-wrapped,
-    range-edge-truncated grid for each elevation group separately.
-
-    Parameters
-    ----------
-    RadarXR    : xr.Dataset — the radar dataset (mutated in place)
-    variable   : str        — variable name to operate on
-    grid_size  : int        — odd integer, size of the NxN grid
-    fill_value : scalar     — fill value to treat as invalid (in addition to NaN)
-    filter_func: callable   — function applied to each flattened window
-    result_name: str        — name of the output variable added to RadarXR
-    """
-    data = RadarXR[variable].values.copy()  # shape: (time, range)
-
-    # Replace fill values with NaN (unless fill_value is already NaN,
-    # in which case NaNs are already handled)
-    if fill_value is not None and not (isinstance(fill_value, float) and np.isnan(fill_value)):
-        data = np.where(data == fill_value, np.nan, data)
-
-    n_time, n_range = data.shape
-    half = grid_size // 2
-
-    # Output array, initialised to NaN
-    result = np.full((n_time, n_range), np.nan, dtype=np.float32)
-
-    elev_groups = _get_elevation_groups(RadarXR)
-
-    for elev, time_indices in elev_groups.items():
-        # Extract the 2D slice for this elevation: shape (n_az, n_range)
-        # where n_az should be 360 (one full sweep)
-        sweep = data[time_indices, :]   # (n_az, n_range)
-        n_az = sweep.shape[0]
-
-        # --- Azimuth wrapping ---
-        # Pad azimuth dimension circularly by `half` on each side
-        padded = np.concatenate(
-            [sweep[-half:, :], sweep, sweep[:half, :]],
-            axis=0
-        )  # shape: (n_az + 2*half, n_range)
-
-        # --- Range: no wrapping, use 'reflect' equivalent via generic_filter
-        # We handle range edges by letting generic_filter use only existing cells
-        # (we pad with NaN so edge windows naturally shrink)
-        range_pad = np.full((padded.shape[0], half), np.nan)
-        padded = np.concatenate([range_pad, padded, range_pad], axis=1)
-        # shape: (n_az + 2*half, n_range + 2*half)
-
-        sweep_result = np.full((n_az, n_range), np.nan, dtype=np.float32)
-
-        for i in range(n_az):
-            for j in range(n_range):
-                # Window in padded array:
-                # azimuth: i to i + grid_size  (half already added by circular pad)
-                # range:   j to j + grid_size  (half already added by NaN pad)
-                window = padded[i:i + grid_size, j:j + grid_size].ravel()
-                sweep_result[i, j] = filter_func(window)
-
-        result[time_indices, :] = sweep_result
-
-    # Build a DataArray matching the original dimensions
-    result_da = xr.DataArray(
-        result,
-        dims=RadarXR[variable].dims,
-        coords=RadarXR[variable].coords,
-        attrs={'long_name': result_name, 'grid_size': grid_size}
-    )
-
-    RadarXR[result_name] = result_da
-
-
-def GridVariance(
+def GridStats(
     RadarXR: xr.Dataset,
     variable: str,
     grid_size: int,
     fill_value
 ):
     """
-    Computes the population variance of `variable` within a grid_size x grid_size
-    neighbourhood for every cell, grouped by elevation angle.
+    Computes both population variance and valid cell count of `variable` within
+    a grid_size x grid_size neighbourhood for every cell, grouped by elevation angle.
+    Both results are added to RadarXR in a single pass.
 
     Azimuth dimension is treated as circular (wraps around).
     Range dimension is truncated at edges (no wrapping).
-    NaN and fill_value cells are excluded from variance calculation.
-    Windows with a single valid cell return variance = 0.0.
-    Windows with no valid cells return NaN.
+    NaN and fill_value cells are excluded from calculations.
+    Centre cells that are NaN or fill value are returned as NaN for both outputs.
+    Windows with a single valid cell return variance = 0.0, count = 1.
+    Windows with no valid cells return NaN for both.
 
-    The result is added to RadarXR as:
+    Results are added to RadarXR as:
         {variable}_{grid_size}x{grid_size}grid_variance
-
-    Parameters
-    ----------
-    RadarXR    : xr.Dataset — radar dataset, mutated in place
-    variable   : str        — name of the variable to process
-    grid_size  : int        — must be an odd integer (e.g. 3, 5, 7)
-    fill_value : scalar     — value to treat as invalid (use np.nan if applicable)
-    """
-    if grid_size % 2 == 0:
-        raise ValueError(f"grid_size must be an odd integer, got {grid_size}.")
-
-    result_name = f"{variable}_{grid_size}x{grid_size}grid_variance"
-    _apply_grid_function(RadarXR, variable, grid_size, fill_value, _variance_filter, result_name)
-    print(f"Added '{result_name}' to RadarXR.")
-
-
-def GridCount(
-    RadarXR: xr.Dataset,
-    variable: str,
-    grid_size: int,
-    fill_value
-):
-    """
-    Counts the number of valid cells within a grid_size x grid_size neighbourhood
-    for every cell, grouped by elevation angle.
-
-    Valid cells are those that are not NaN and not equal to fill_value.
-    The result is added to RadarXR as:
         {variable}_{grid_size}x{grid_size}grid_count
 
     Parameters
     ----------
-    RadarXR    : xr.Dataset — radar dataset, mutated in place
-    variable   : str        — name of the variable to process
-    grid_size  : int        — must be an odd integer (e.g. 3, 5, 7)
-    fill_value : scalar     — value to treat as invalid (use np.nan if applicable)
+    RadarXR    : xr.Dataset     — radar dataset, mutated in place
+    variable   : str            — name of the variable to process
+    grid_size  : int            — must be an odd integer (e.g. 3, 5, 7)
+    fill_value : scalar or list — value(s) to treat as invalid (use np.nan if applicable)
     """
     if grid_size % 2 == 0:
         raise ValueError(f"grid_size must be an odd integer, got {grid_size}.")
 
-    result_name = f"{variable}_{grid_size}x{grid_size}grid_count"
-    _apply_grid_function(RadarXR, variable, grid_size, fill_value, _count_filter, result_name)
-    print(f"Added '{result_name}' to RadarXR.")
+    data = RadarXR[variable].values.copy()  # shape: (time, range)
+
+    # Normalise fill_values to a list, then replace all fill values with NaN
+    fill_values = [fill_value] if not isinstance(fill_value, (list, tuple)) else fill_value
+    for fv in fill_values:
+        if fv is not None and not (isinstance(fv, float) and np.isnan(fv)):
+            data = np.where(np.abs(data - fv) < 1e-3, np.nan, data)
+
+    n_time, n_range = data.shape
+    half = grid_size // 2
+
+    # Output arrays, initialised to NaN
+    variance_result = np.full((n_time, n_range), np.nan, dtype=np.float32)
+    count_result    = np.full((n_time, n_range), np.nan, dtype=np.float32)
+
+    elev_groups = _get_elevation_groups(RadarXR)
+
+    for elev, time_indices in elev_groups.items():
+        sweep = data[time_indices, :]  # (n_az, n_range)
+        n_az = sweep.shape[0]
+
+        # --- Azimuth wrapping ---
+        padded = np.concatenate(
+            [sweep[-half:, :], sweep, sweep[:half, :]],
+            axis=0
+        )
+
+        # --- Range: pad with NaN ---
+        range_pad = np.full((padded.shape[0], half), np.nan)
+        padded = np.concatenate([range_pad, padded, range_pad], axis=1)
+
+        sweep_variance = np.full((n_az, n_range), np.nan, dtype=np.float32)
+        sweep_count    = np.full((n_az, n_range), np.nan, dtype=np.float32)
+
+        for i in range(n_az):
+            for j in range(n_range):
+                # Early exit if centre cell is invalid
+                if np.isnan(sweep[i, j]):
+                    continue
+
+                window = padded[i:i + grid_size, j:j + grid_size].ravel()
+                var, cnt = _combined_filter(window)
+                sweep_variance[i, j] = var
+                sweep_count[i, j]    = cnt
+
+        variance_result[time_indices, :] = sweep_variance
+        count_result[time_indices, :]    = sweep_count
+
+    dims   = RadarXR[variable].dims
+    coords = RadarXR[variable].coords
+
+    variance_name = f"{variable}_{grid_size}x{grid_size}grid_variance"
+    count_name    = f"{variable}_{grid_size}x{grid_size}grid_count"
+
+    RadarXR[variance_name] = xr.DataArray(
+        variance_result, dims=dims, coords=coords,
+        attrs={'long_name': variance_name, 'grid_size': grid_size}
+    )
+    RadarXR[count_name] = xr.DataArray(
+        count_result, dims=dims, coords=coords,
+        attrs={'long_name': count_name, 'grid_size': grid_size}
+    )
+
+    print(f"Added '{variance_name}' to RadarXR.")
+    print(f"Added '{count_name}' to RadarXR.")
