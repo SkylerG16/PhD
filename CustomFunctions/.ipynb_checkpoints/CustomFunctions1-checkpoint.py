@@ -14,6 +14,12 @@ from matplotlib.colors import LinearSegmentedColormap
 from scipy.ndimage import generic_filter
 
 
+# OCCURENCE COUNTER FUNCTION
+def occurences(data):
+    unique_values, counts = np.unique(data, return_counts=True)
+    
+    for value, count in zip(unique_values, counts):
+        print(f"{value}: {count} occurrence{'s' if count > 1 else ''}")
 
 def pcolormeshC(x_centers, y_centers, z, ax=None,
                             shading='auto', **pcolor_kwargs):
