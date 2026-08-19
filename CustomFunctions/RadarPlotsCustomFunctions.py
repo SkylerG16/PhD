@@ -33,6 +33,9 @@ from custom_elevation import fetch_srtm, fetch_gebco_local
 from matplotlib.colors import LinearSegmentedColormap
 from matplotlib.colors import ListedColormap, BoundaryNorm, Normalize
 
+# for projecting radar coordinates to lat and lon
+from pyproj import Geod
+
 # RADAR REFLECTIVITY COLOUR MAP
 def make_ChadMapZ():
     
@@ -602,21 +605,80 @@ def GrabVarInfo(plot_variable: str, value_or_texture_or_count: str, variance_gri
 
 
 # TOPOGRAPHY BASEMAP FUNCTION FOR PLOTTING FIGURES WITH HORIZONTAL RADAR DATA
-def AddTopoShading(ax, xgrid, LonShift, ElevationModelPath):
+def AddTopoShading(ax, lon_min, lon_max, lat_min, lat_max, ElevationModelPath, ColourStyle):
     """
     Adds terrain shading to an existing cartopy axes object using a local GEBCO DEM.
     Falls back to simple land/ocean shading if the DEM cannot be loaded.
 
     Args:
         ax:                 The existing cartopy axes object to plot onto.
-        xgrid:              The radar grid xarray object, used to extract lon/lat bounds.
-        LonShift:           Longitude correction offset for known coordinate errors.
+        lon_min:            Minimum longitude of the plot domain.
+        lon_max:            Maximum longitude of the plot domain.
+        lat_min:            Minimum latitude of the plot domain.
+        lat_max:            Maximum latitude of the plot domain.
         ElevationModelPath: Full path to the local GEBCO .nc elevation file.
+        ColourStyle:        Either 'Light' or 'Dark'. Controls the colour scheme of the
+                            terrain shading, contour lines, and fallback features.
+                            Defaults to 'Light'.
     """
 
-    # Extract plot bounds from radar grid
-    lon_min, lon_max = float(xgrid.lon.min()) + LonShift, float(xgrid.lon.max()) + LonShift
-    lat_min, lat_max = float(xgrid.lat.min()), float(xgrid.lat.max())
+    # -------------------------------------------------------------------------
+    # Colour scheme definitions
+    # -------------------------------------------------------------------------
+    if ColourStyle == 'Dark':
+        colours = [
+            '#1a3a5c',  # 0: ocean (< 0 m)      — medium-dark navy blue
+            '#1a4a1a',  # 1: 0–200 m            — medium-dark green
+            '#2e4a10',  # 2: 200–400 m          — dark olive green
+            '#545040',  # 3: 400–600 m          — muted olive
+            '#7a5c3a',  # 4: 600–800 m          — muted brown
+            '#a07848',  # 5: 800–1000 m         — muted warm brown
+            '#bc9858',  # 6: 1000–1200 m        — muted tan
+            '#d4b870',  # 7: > 1200 m           — muted golden
+        ]
+        contour_colour         = 'white'
+        contour_alpha_0m       = 0.5
+        contour_alpha_400m     = 0.2
+        contour_linewidth_0m   = 0.25
+        contour_linewidth_400m = 0.25
+        fallback_ocean_colour  = '#0d1f3c'   # dark navy
+        fallback_land_colour   = '#2b1d0e'   # dark brown
+        border_colour          = 'white'
+
+    else:  # Default to 'Light'
+        colours = [
+            '#dde4e8',  # 0: pale blue-grey (ocean, < 0 m)
+            '#c4dec2',  # 1: 0–200 m,    pale green
+            '#e4edc9',  # 2: 200–400 m,  greenish-yellow
+            '#f3f0cf',  # 3: 400–600 m,  pale yellow-beige
+            '#e9d7bd',  # 4: 600–800 m,  light tan
+            '#ddc4aa',  # 5: 800–1000 m, tan
+            '#cfb194',  # 6: 1000–1200 m, light brown
+            '#b58f6e',  # 7: > 1200 m,   darker brown
+        ]
+        contour_colour         = 'black'
+        contour_alpha_0m       = 1.0
+        contour_alpha_400m     = 1.0
+        contour_linewidth_0m   = 0.5
+        contour_linewidth_400m = 0.3
+        fallback_ocean_colour  = 'lightblue'
+        fallback_land_colour   = '#E8E8E8'
+        border_colour          = 'black'
+
+    # -------------------------------------------------------------------------
+    # Shared elevation bounds
+    # -------------------------------------------------------------------------
+    bounds = [
+        -1000.0,  # ocean below 0
+            0.0,  # 0–200
+          200.0,  # 200–400
+          400.0,  # 400–600
+          600.0,  # 600–800
+          800.0,  # 800–1000
+         1000.0,  # 1000–1200
+         1200.0,  # > 1200
+         5000.0,
+    ]
 
     try:
         dem_da = fetch_gebco_local(ElevationModelPath, lon_min, lon_max, lat_min, lat_max)
@@ -639,33 +701,10 @@ def AddTopoShading(ax, xgrid, LonShift, ElevationModelPath):
         if not np.any(valid):
             raise ValueError('DEM has no finite values in this domain')
 
-        colours = [
-            '#dde4e8',  # 0: pale blue-grey (ocean, < 0 m)
-            '#c4dec2',  # 1: 0–200 m,    pale green
-            '#e4edc9',  # 2: 200–400 m,  greenish-yellow
-            '#f3f0cf',  # 3: 400–600 m,  pale yellow-beige
-            '#e9d7bd',  # 4: 600–800 m,  light tan
-            '#ddc4aa',  # 5: 800–1000 m, tan
-            '#cfb194',  # 6: 1000–1200 m, light brown
-            '#b58f6e',  # 7: > 1200 m,   darker brown
-        ]
-
-        bounds = [
-            -1000.0,  # ocean below 0
-                0.0,  # 0–200
-              200.0,  # 200–400
-              400.0,  # 400–600
-              600.0,  # 600–800
-              800.0,  # 800–1000
-             1000.0,  # 1000–1200
-             1200.0,  # > 1200
-             5000.0,
-        ]
-
         cmap_elev = ListedColormap(colours)
         norm      = BoundaryNorm(bounds, len(colours), clip=True)
 
-        # Plot as semi-transparent background
+        # Plot terrain as background
         elev_plot = ax.pcolormesh(
             dem_lon_2d,
             dem_lat_2d,
@@ -674,7 +713,6 @@ def AddTopoShading(ax, xgrid, LonShift, ElevationModelPath):
             norm=norm,
             alpha=1.0,
             transform=ccrs.PlateCarree(),
-            # zorder=0,
         )
 
         # Draw 0 m contour as an accurate coastline
@@ -683,8 +721,9 @@ def AddTopoShading(ax, xgrid, LonShift, ElevationModelPath):
             dem_lat_2d,
             dem_data,
             levels=[0.0],
-            colors='black',
-            linewidths=0.5,
+            colors=contour_colour,
+            alpha=contour_alpha_0m,
+            linewidths=contour_linewidth_0m,
             transform=ccrs.PlateCarree(),
             zorder=15,
         )
@@ -695,24 +734,29 @@ def AddTopoShading(ax, xgrid, LonShift, ElevationModelPath):
             dem_lat_2d,
             dem_data,
             levels=[400.0],
-            colors='black',
-            linewidths=0.3,
+            colors=contour_colour,
+            alpha=contour_alpha_400m,
+            linewidths=contour_linewidth_400m,
             transform=ccrs.PlateCarree(),
             zorder=15,
         )
 
     except Exception as e:
         print(f'Terrain shading failed: {e}')
-        ax.add_feature(cfeature.OCEAN, facecolor='lightblue', alpha=0.3, zorder=1)
-        ax.add_feature(cfeature.LAND,  facecolor='#E8E8E8',   alpha=0.3, zorder=2)
+        ax.add_feature(cfeature.OCEAN, facecolor=fallback_ocean_colour, alpha=0.3, zorder=1)
+        ax.add_feature(cfeature.LAND,  facecolor=fallback_land_colour,  alpha=0.3, zorder=2)
 
-    ax.add_feature(cfeature.BORDERS, linewidth=0.5, alpha=0.5, zorder=3)
+    ax.add_feature(cfeature.BORDERS, linewidth=0.5, alpha=0.5,
+                   edgecolor=border_colour, zorder=3)
+
+
 
 
 
 # ADD GRID LINES TO TOP-DOWN (HORIZONTAL) PLOTS
 def AddGridlines(ax, ThinLineThickness, MediumLineThickness, ThickLineThickness,
-                     ThinLineFrequency, MediumLineFrequency, ThickLineFrequency):
+                     ThinLineFrequency, MediumLineFrequency, ThickLineFrequency, StandOutColour):
+    
     """
     Adds three levels of lat/lon gridlines to an existing cartopy axes object.
 
@@ -731,8 +775,9 @@ def AddGridlines(ax, ThinLineThickness, MediumLineThickness, ThickLineThickness,
     gl_minor.xlocator = mticker.MultipleLocator(ThinLineFrequency)
     gl_minor.ylocator = mticker.MultipleLocator(ThinLineFrequency)
 
-    # Add MID LEVEL gridlines — medium width, with labels
-    gl_mid          = ax.gridlines(draw_labels=True, alpha=0.8, zorder=12, linewidth=MediumLineThickness)
+    # Add MID LEVEL gridlines — medium width, no labels
+    gl_mid = ax.gridlines(draw_labels=False, alpha=0.8, zorder=12, linewidth=MediumLineThickness)
+
     gl_mid.xlocator = mticker.MultipleLocator(MediumLineFrequency)
     gl_mid.ylocator = mticker.MultipleLocator(MediumLineFrequency)
 
@@ -742,17 +787,10 @@ def AddGridlines(ax, ThinLineThickness, MediumLineThickness, ThickLineThickness,
     gl_major.ylocator = mticker.MultipleLocator(ThickLineFrequency)
 
     # Format labels
-    gl_mid.xformatter   = LONGITUDE_FORMATTER
-    gl_mid.yformatter   = LATITUDE_FORMATTER
     gl_major.xformatter = LONGITUDE_FORMATTER
     gl_major.yformatter = LATITUDE_FORMATTER
 
     # Remove labels from top and right
-    gl_mid.top_labels    = False
-    gl_mid.right_labels  = False
-    gl_mid.bottom_labels = True
-    gl_mid.left_labels   = True
-
     gl_major.top_labels    = False
     gl_major.right_labels  = False
     gl_major.bottom_labels = True
@@ -761,3 +799,274 @@ def AddGridlines(ax, ThinLineThickness, MediumLineThickness, ThickLineThickness,
     # Axis labels
     ax.set_xlabel('Longitude')
     ax.set_ylabel('Latitude')
+    
+    # ------------------------------------------------------------------
+    # Gridline label colouring — must be applied at draw time because
+    # cartopy only creates the label text artists during rendering
+    # ------------------------------------------------------------------
+    def _colour_gridline_labels(event):
+        for gl in [gl_mid, gl_major]:
+            for artist in gl.label_artists:
+                artist.set_color(StandOutColour)
+
+    ax.figure.canvas.mpl_connect('draw_event', _colour_gridline_labels)
+
+
+
+# ADD GATE COORDINATES (LATS AND LONS) TO PPI DATA FOR PLOTTING
+def AddGateCoords(RadarXR, LonShift):
+    """
+    Calculates the latitude, longitude, and altitude of every radar gate
+    in a PPI scan using the 4/3 effective Earth radius model, and returns
+    the input xarray Dataset with these added as new variables.
+
+    Args:
+        RadarXR:  The input xarray Dataset containing radar PPI data.
+        LonShift: Longitude correction offset for known coordinate errors.
+
+    Returns:
+        RadarXR:  The input xarray Dataset with three new variables added:
+                  'gate_latitude', 'gate_longitude', 'gate_altitude'.
+    """
+
+    # Calculate the effective radius of the Earth given standard refraction
+    RadiusEarth    = 6371000  # [m]
+    RadiusEarthEff = RadiusEarth * (4/3)
+
+    # Load in a geodesic calculator
+    geod = Geod(ellps='WGS84')
+
+    # Read in the PPI coordinates from the xarray dataset
+    Ranges  = RadarXR['range'].values
+    AziDegs = RadarXR['azimuth'].values
+    EleDegs = RadarXR['elevation'].values
+
+    # Read in the radar site location from the xarray dataset
+    SiteLat = float(RadarXR.latitude)
+    SiteLon = float(RadarXR.longitude)
+    SiteAlt = float(RadarXR.altitude)
+
+    # Convert angles to radians
+    AziRads = np.deg2rad(AziDegs)[:, None]
+    EleRads = np.deg2rad(EleDegs)[:, None]
+
+    # Distance from centre of the Earth using 4/3 Earth-radius model
+    DistsFromCOE = np.sqrt(
+        (Ranges**2) + (RadiusEarthEff**2) + (2.0 * Ranges * RadiusEarthEff * np.sin(EleRads))
+    )
+
+    # Convert to altitude by subtracting out the Earth radius and adding site elevation
+    Alts = (DistsFromCOE - RadiusEarthEff) + SiteAlt
+
+    # Calculate ground range (distance along the surface of the Earth)
+    GroundRanges = Ranges * np.cos(EleRads)
+    GroundRanges = np.squeeze(GroundRanges)
+
+    # Retrieve number of rays and gates
+    NumRays, NumGates = GroundRanges.shape
+
+    # Broadcast radar site lon/lat and azimuth to match GroundRanges shape
+    SiteLonRep = np.full_like(GroundRanges, SiteLon, dtype=float)
+    SiteLatRep = np.full_like(GroundRanges, SiteLat, dtype=float)
+    AziDegsRep = np.repeat(AziDegs[:, None], NumGates, axis=1)
+
+    # Calculate gate lon/lat using geodesic forward projection
+    Lons, Lats, _ = geod.fwd(SiteLonRep, SiteLatRep, AziDegsRep, GroundRanges)
+
+    # Package results as xarray DataArrays
+    LatsData = xr.DataArray(
+        Lats,
+        dims=('time', 'range'),
+        name='gate_latitude',
+        attrs={
+            'long_name': 'latitude of radar gates',
+            'units':     'degrees_north',
+        }
+    )
+
+    LonsData = xr.DataArray(
+        Lons + LonShift,
+        dims=('time', 'range'),
+        name='gate_longitude',
+        attrs={
+            'long_name': 'longitude of radar gates',
+            'units':     'degrees_east',
+        }
+    )
+
+    AltsData = xr.DataArray(
+        Alts,
+        dims=('time', 'range'),
+        name='gate_altitude',
+        attrs={
+            'long_name':     'altitude of radar gates',
+            'units':         'm',
+            'standard_name': 'altitude',
+        }
+    )
+
+    # Add the new variables to the dataset and return
+    RadarXR['gate_latitude']  = LatsData
+    RadarXR['gate_longitude'] = LonsData
+    RadarXR['gate_altitude']  = AltsData
+
+    return RadarXR
+
+
+
+def beam_height_curved(s_km, elev_deg, ke=4/3, re_km=6371.0):
+    """
+    Calculate radar beam centre height above Earth's surface accounting
+    for Earth curvature and standard atmospheric refraction.
+    Uses the effective Earth radius (4/3 Earth radius) model.
+
+    Parameters
+    ----------
+    s_km     : float or array  — horizontal ground distance from radar [km]
+    elev_deg : float           — radar elevation angle [degrees]
+    ke       : float           — effective Earth radius factor (default 4/3)
+    re_km    : float           — Earth radius [km] (default 6371)
+
+    Returns
+    -------
+    height_km : float or array — beam centre height above surface [km]
+    """
+    theta = np.radians(elev_deg)
+    ker   = ke * re_km
+
+    pretend_height_km = s_km * np.tan(theta) # estimated height above radar without earth curve
+
+    slant_km = np.sqrt(s_km**2 + pretend_height_km **2) # estimated slant distance from radar
+    
+    height_km = np.sqrt(slant_km**2 + ker**2 + 2 * slant_km * ker * np.sin(theta)) - ker # new estimated height with curvature
+    return height_km
+
+# LETS PRETEND FOR NOW THAT THE CURVATURE OF THE EARTH HAS NO EFFECT ON THE HORIZONTAL DISTANCE
+# def slant_range_curved(s_km, elev_deg, ke=4/3, re_km=6371.0):
+#     """
+#     Calculate the true slant range from the radar to a point at horizontal
+#     ground distance s_km, accounting for Earth curvature.
+#     Used for minimum detectable reflectivity calculations.
+
+#     Parameters
+#     ----------
+#     s_km     : float or array  — horizontal ground distance from radar [km]
+#     elev_deg : float           — radar elevation angle [degrees] (not used in
+#                                  range-only MDR but kept for completeness)
+#     ke       : float           — effective Earth radius factor (default 4/3)
+#     re_km    : float           — Earth radius [km] (default 6371)
+
+#     Returns
+#     -------
+#     slant_km : float or array  — slant range from radar [km]
+#     """
+#     theta = np.radians(elev_deg)
+#     ker   = ke * re_km
+#     # slant range from geometry
+#     slant_km = ker * np.arcsin(s_km * np.cos(theta) / 
+#                                np.sqrt(s_km**2 + ker**2 + 2 * s_km * ker * np.sin(theta)))
+#     return slant_km
+
+
+def calculate_mdr(distance_km):
+    """
+    Minimum detectable reflectivity as a function of slant range.
+    5 dBZ at 80 km, +6 dBZ per doubling of distance.
+
+    Parameters
+    ----------
+    distance_km : float or array — slant range from radar [km]
+
+    Returns
+    -------
+    mdr : float or array — minimum detectable reflectivity [dBZ]
+    """
+    return 5.0 + 6.0 * np.log2(distance_km / 80.0)
+
+
+
+
+# THIS FUNCTION add variables to the xarray data frame
+# that rearrange time-based variables to correspond to time of day, not time in feature's life
+def AddFrameTimeVars(FeatureXR):
+    
+    # Derive date from dataset attributes
+    RadarFileDatePD = pd.Timestamp(str(FeatureXR.attrs['startdate'])[:8]).date()
+    FrameTimes = pd.date_range(start=pd.Timestamp(RadarFileDatePD), periods=288, freq='5min')
+    FrameTimesIndices = pd.DatetimeIndex(FrameTimes)
+    StartTimeFloors = pd.DatetimeIndex(FeatureXR['start_basetime'].values).floor('5min')
+
+    # Map each track's floored start time to its FrameTimes index
+    StartFrameIndices = np.array([FrameTimesIndices.get_loc(t) for t in StartTimeFloors])
+    
+    # Collect all variables that have 'times' as a dimension
+    VarsWithTime= [var for var in FeatureXR.data_vars if 'times' in FeatureXR[var].dims]
+    
+    NumFrames = len(FrameTimes)  # 288
+    NewVars = {}
+    
+    for var in VarsWithTime:
+        OldVar = FeatureXR[var]
+        OldValues =  OldVar.values
+        OldDims = list(OldVar.dims)
+    
+        # Determine fill value based on dtype
+        if np.issubdtype(OldValues.dtype, np.floating):
+            FillValue = np.nan
+        else:
+            FillValue = -9999
+    
+        # Replace 'times' with 'FrameTimes' in the dimension list
+        NewDims = [d if d != 'times' else 'FrameTimes' for d in OldDims]
+    
+        # Build the shape of the new array, replacing times axis size with n_frames
+        TimeAxis = OldDims.index('times')
+        NewShape = list(OldValues.shape)
+        NewShape[TimeAxis] = NumFrames
+    
+        # Initialise new array with fill value
+        NewValues = np.full(NewShape, FillValue, dtype=OldValues.dtype)
+    
+        # --- Fill in data track by track ---
+        # Get the index of 'times' axis; handle both (times,) and (tracks, times)
+        if 'tracks' in OldDims:
+            NumTracks = OldValues.shape[OldDims.index('tracks')]
+            for i in range(NumTracks):
+                StartIndex = StartFrameIndices[i]
+    
+                # Slice along tracks axis
+                TrackData = np.take(OldValues, i, axis=OldDims.index('tracks'))
+    
+                # Find valid (non-fill) entries
+                if np.issubdtype(OldValues.dtype, np.floating):
+                    ValidMask = ~np.isnan(TrackData)
+                else:
+                    ValidMask = TrackData != -9999
+    
+                ValidData = TrackData[ValidMask]
+                NumValidFrames = len(ValidData)
+    
+                # How many fit from start_idx to end of day
+                EndIndex = min(StartIndex + NumValidFrames, NumFrames)
+                TrackFrameLength  = EndIndex - StartIndex
+    
+                # Place into new array along tracks axis
+                if OldDims.index('tracks') == 0:
+                    NewValues[i, StartIndex:EndIndex] = ValidData[:TrackFrameLength]
+                else:
+                    NewValues[StartIndex:EndIndex, i] = ValidData[:TrackFrameLength]
+        else:
+            # Variable has only (times,) dimension — no track offset to apply
+            # Just copy directly; no per-track start index available
+            NewValues[:] = OldValues
+    
+        NewVars[f'{var}_frametimes'] = xr.Variable(
+            dims=NewDims,
+            data=NewValues,
+            attrs=OldVar.attrs
+        )
+    
+    # --- Assign all new variables ---
+    FeatureXR = FeatureXR.assign(NewVars)
+
+    return FeatureXR
