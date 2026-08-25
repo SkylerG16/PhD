@@ -13,6 +13,8 @@ from matplotlib.colors import LinearSegmentedColormap
 
 from scipy.ndimage import generic_filter
 
+from numpy.lib.stride_tricks import sliding_window_view
+
 
 # OCCURENCE COUNTER FUNCTION
 def occurences(data):
@@ -618,3 +620,122 @@ def GridStats(
 
     print(f"Added '{variance_name}' to RadarXR.")
     print(f"Added '{count_name}' to RadarXR.")
+
+
+
+
+def GridStatsFast(
+    RadarXR: xr.Dataset,
+    variable: str,
+    grid_size: int,
+    fill_value
+) -> xr.Dataset:
+    """
+    Computes both population variance and valid cell count of `variable` within
+    a grid_size x grid_size neighbourhood for every cell, grouped by elevation angle.
+
+    Azimuth dimension is treated as circular (wraps around).
+    Range dimension is truncated at edges (no wrapping).
+    NaN and fill_value cells are excluded from calculations.
+    Centre cells that are NaN or fill value are returned as NaN for both outputs.
+    Windows with a single valid cell return variance = 0.0, count = 1.
+    Windows with no valid cells return NaN for both.
+
+    Parameters
+    ----------
+    RadarXR    : xr.Dataset     — radar dataset (not mutated)
+    variable   : str            — name of the variable to process
+    grid_size  : int            — must be an odd integer (e.g. 3, 5, 7)
+    fill_value : scalar or list — value(s) to treat as invalid (use np.nan if applicable)
+
+    Returns
+    -------
+    xr.Dataset
+        New dataset containing only the variance and count DataArrays.
+    """
+    if grid_size % 2 == 0:
+        raise ValueError(f"grid_size must be an odd integer, got {grid_size}.")
+
+    data = RadarXR[variable].values.copy()  # shape: (n_time, n_range)
+
+    # Normalise fill_values to a list, then replace all fill values with NaN
+    fill_values = [fill_value] if not isinstance(fill_value, (list, tuple)) else fill_value
+    for fv in fill_values:
+        if fv is not None and not (isinstance(fv, float) and np.isnan(fv)):
+            data = np.where(np.abs(data - fv) < 1e-3, np.nan, data)
+
+    n_time, n_range = data.shape
+    half = grid_size // 2
+
+    # Output arrays, initialised to NaN
+    variance_result = np.full((n_time, n_range), np.nan, dtype=np.float32)
+    count_result    = np.full((n_time, n_range), np.nan, dtype=np.float32)
+
+    elev_groups = _get_elevation_groups(RadarXR)
+
+    for elev, time_indices in elev_groups.items():
+        sweep = data[time_indices, :]  # (n_az, n_range)
+        n_az  = sweep.shape[0]
+
+        # --- Azimuth: circular wrap padding ---
+        padded = np.concatenate(
+            [sweep[-half:, :], sweep, sweep[:half, :]],
+            axis=0
+        )
+
+        # --- Range: pad with NaN ---
+        range_pad = np.full((padded.shape[0], half), np.nan)
+        padded = np.concatenate([range_pad, padded, range_pad], axis=1)
+
+        # --- Vectorised sliding window ---
+        # windows shape: (n_az, n_range, grid_size, grid_size)
+        windows = sliding_window_view(padded, (grid_size, grid_size))
+
+        # Flatten window dimensions → (n_az, n_range, grid_size**2)
+        windows_flat = windows.reshape(n_az, n_range, -1).astype(np.float64)
+
+        # Count valid (finite) cells per window
+        valid_mask = np.isfinite(windows_flat)                      # (n_az, n_range, grid_size**2)
+        cnt = valid_mask.sum(axis=-1).astype(np.float32)            # (n_az, n_range)
+
+        # Compute variance ignoring NaN — np.nanvar returns NaN where all values are NaN
+        with np.errstate(all='ignore'):
+            win_var = np.nanvar(windows_flat, axis=-1).astype(np.float32)
+
+        # Mask out centre cells that are invalid
+        centre_invalid      = ~np.isfinite(sweep)
+        win_var[centre_invalid] = np.nan
+        cnt[centre_invalid]     = np.nan
+
+        # Mask windows with no valid cells (nanvar gives NaN already, but be explicit for count)
+        no_valid            = cnt == 0
+        win_var[no_valid]   = np.nan
+        cnt[no_valid]       = np.nan
+
+        variance_result[time_indices, :] = win_var
+        count_result[time_indices, :]    = cnt
+
+    dims   = RadarXR[variable].dims
+    coords = RadarXR[variable].coords
+
+    variance_name = f"{variable}_{grid_size}x{grid_size}grid_variance"
+    count_name    = f"{variable}_{grid_size}x{grid_size}grid_count"
+
+    result = xr.Dataset(
+        {
+            variance_name: xr.DataArray(
+                variance_result, dims=dims, coords=coords,
+                attrs={'long_name': variance_name, 'grid_size': grid_size}
+            ),
+            count_name: xr.DataArray(
+                count_result, dims=dims, coords=coords,
+                attrs={'long_name': count_name, 'grid_size': grid_size}
+            ),
+        }
+    )
+
+    print(f"Computed '{variance_name}'.")
+    print(f"Computed '{count_name}'.")
+
+    return variance_result, count_result
+
