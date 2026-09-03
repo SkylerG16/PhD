@@ -1070,3 +1070,157 @@ def AddFrameTimeVars(FeatureXR):
     FeatureXR = FeatureXR.assign(NewVars)
 
     return FeatureXR
+
+
+
+
+# THIS FUNCTION add feature propogation speed and direction variables to the xarray data frame from Feature Tracking
+def AddPropagationVars(FeatureXR):
+    """
+    Calculates feature propagation speeds and direction from mean lat/lon
+    and base_time, and adds them as new variables to the input xarray Dataset.
+
+    Vectorised using pyproj — no Python loops.
+
+    Parameters
+    ----------
+    FeatureXR : xr.Dataset
+        Feature tracking dataset with dimensions (tracks, times) and variables:
+            - base_time : datetime64 timestamps for each feature at each time step
+            - meanlat   : mean latitude  of each feature at each time step
+            - meanlon   : mean longitude of each feature at each time step
+
+    Returns
+    -------
+    FeatureXR : xr.Dataset
+        Input dataset with four new variables added:
+            - u_prop_speed     : Eastward  propagation speed component [m s-1]
+            - v_prop_speed     : Northward propagation speed component [m s-1]
+            - total_prop_speed : Total propagation speed magnitude     [m s-1]
+            - prop_direction   : Propagation direction, clockwise from North [degrees]
+    """
+
+    from pyproj import Geod
+
+    geod = Geod(ellps='WGS84')
+
+    n_tracks = len(FeatureXR.coords['tracks'])
+    n_times  = len(FeatureXR.coords['times'])
+
+    # --- Load full arrays into memory once ---
+    base_time = FeatureXR['base_time'].values   # (tracks, times)
+    meanlat   = FeatureXR['meanlat'].values     # (tracks, times)
+    meanlon   = FeatureXR['meanlon'].values     # (tracks, times)
+
+    # --- Time differences in seconds along time axis ---
+    Tdiff = (base_time[:, 1:] - base_time[:, :-1]) / np.timedelta64(1, 's')
+    # Shape: (tracks, times-1)
+
+    # --- Start/end lat/lon slices ---
+    StartLat = meanlat[:, :-1]
+    StartLon = meanlon[:, :-1]
+    EndLat   = meanlat[:, 1:]
+    EndLon   = meanlon[:, 1:]
+
+    # --- Flatten to 1D for pyproj ---
+    flat_lon1 = StartLon.ravel()
+    flat_lat1 = StartLat.ravel()
+    flat_lon2 = EndLon.ravel()
+    flat_lat2 = EndLat.ravel()
+    flat_tdiff = Tdiff.ravel()
+
+    # --- Valid point mask ---
+    valid_mask = (
+        ~np.isnan(flat_lat1) &
+        ~np.isnan(flat_lon1) &
+        ~np.isnan(flat_lat2) &
+        ~np.isnan(flat_lon2) &
+        (flat_tdiff != 0)
+    )
+
+    # --- Pre-allocate flat displacement arrays ---
+    n_flat       = flat_lon1.shape[0]
+    Xtravel_flat = np.full(n_flat, np.nan)
+    Ytravel_flat = np.full(n_flat, np.nan)
+
+    # --- Run pyproj only on valid points ---
+    az_fwd, _, dist_m = geod.inv(
+        flat_lon1[valid_mask],
+        flat_lat1[valid_mask],
+        flat_lon2[valid_mask],
+        flat_lat2[valid_mask]
+    )
+
+    az_rad = np.deg2rad(az_fwd)
+    Xtravel_flat[valid_mask] = dist_m * np.sin(az_rad)
+    Ytravel_flat[valid_mask] = dist_m * np.cos(az_rad)
+
+    # --- Reshape back to (tracks, times-1) ---
+    Xtravel = Xtravel_flat.reshape(n_tracks, n_times - 1)
+    Ytravel = Ytravel_flat.reshape(n_tracks, n_times - 1)
+
+    # --- Compute speeds [m/s] and direction ---
+    Uspeed        = Xtravel / Tdiff
+    Vspeed        = Ytravel / Tdiff
+    PropSpeed     = (Uspeed**2 + Vspeed**2) ** 0.5
+    PropDirection = 180 + np.rad2deg(np.arctan2(Uspeed, Vspeed))
+
+    # --- Pad NaN column at front (no previous step at time_i=0) ---
+    nan_col = np.full((n_tracks, 1), np.nan)
+
+    Uspeed_all    = np.hstack([nan_col, Uspeed])
+    Vspeed_all    = np.hstack([nan_col, Vspeed])
+    PropSpeed_all = np.hstack([nan_col, PropSpeed])
+    PropDir_all   = np.hstack([nan_col, PropDirection])
+
+    # --- Assign new variables to dataset ---
+    FeatureXR = FeatureXR.assign(
+
+        u_prop_speed = xr.DataArray(
+            Uspeed_all,
+            dims  = ['tracks', 'times'],
+            attrs = {
+                'long_name' : 'Eastward Propagation Speed',
+                'units'     : 'm s-1',
+                'comments'  : 'East-West component of feature propagation speed. '
+                              'Positive values indicate eastward motion.',
+            }
+        ),
+
+        v_prop_speed = xr.DataArray(
+            Vspeed_all,
+            dims  = ['tracks', 'times'],
+            attrs = {
+                'long_name' : 'Northward Propagation Speed',
+                'units'     : 'm s-1',
+                'comments'  : 'North-South component of feature propagation speed. '
+                              'Positive values indicate northward motion.',
+            }
+        ),
+
+        total_prop_speed = xr.DataArray(
+            PropSpeed_all,
+            dims  = ['tracks', 'times'],
+            attrs = {
+                'long_name' : 'Total Propagation Speed',
+                'units'     : 'm s-1',
+                'comments'  : 'Magnitude of the feature propagation speed vector. '
+                              'Computed as sqrt(u_prop_speed^2 + v_prop_speed^2).',
+            }
+        ),
+
+        prop_direction = xr.DataArray(
+            PropDir_all,
+            dims  = ['tracks', 'times'],
+            attrs = {
+                'long_name' : 'Propagation Direction',
+                'units'     : 'degrees',
+                'comments'  : 'Direction of feature propagation as an azimuthal bearing. '
+                              'Measured clockwise from North (0-360°). '
+                              '0° = North, 90° = East, 180° = South, 270° = West.',
+            }
+        ),
+
+    )
+
+    return FeatureXR
