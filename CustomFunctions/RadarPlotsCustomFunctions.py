@@ -989,87 +989,128 @@ def calculate_mdr(distance_km):
 # THIS FUNCTION add variables to the xarray data frame
 # that rearrange time-based variables to correspond to time of day, not time in feature's life
 def AddFrameTimeVars(FeatureXR):
-    
-    # Derive date from dataset attributes
-    RadarFileDatePD = pd.Timestamp(str(FeatureXR.attrs['startdate'])[:8]).date()
-    FrameTimes = pd.date_range(start=pd.Timestamp(RadarFileDatePD), periods=288, freq='5min')
-    FrameTimesIndices = pd.DatetimeIndex(FrameTimes)
-    StartTimeFloors = pd.DatetimeIndex(FeatureXR['start_basetime'].values).floor('5min')
+    """
+    Adds variables to the xarray dataset that rearrange time-based variables
+    to correspond to absolute time across the full tracking period, rather
+    than time relative to each feature's own life.
 
-    # Map each track's floored start time to its FrameTimes index
-    StartFrameIndices = np.array([FrameTimesIndices.get_loc(t) for t in StartTimeFloors])
-    
-    # Collect all variables that have 'times' as a dimension
-    VarsWithTime= [var for var in FeatureXR.data_vars if 'times' in FeatureXR[var].dims]
-    
-    NumFrames = len(FrameTimes)  # 288
+    Works for both single-day and multi-day stats files.
+    """
+
+    # ------------------------------------------------------------------ #
+    # 1. Derive period start from dataset attributes
+    #    'startdate' attribute has format 'YYYYMMDD.HHMMSS'
+    # ------------------------------------------------------------------ #
+    startdate_attr = str(FeatureXR.attrs['startdate'])   # e.g. '20240201.000000'
+    PeriodStart    = pd.Timestamp(
+        f"{startdate_attr[:4]}-{startdate_attr[4:6]}-{startdate_attr[6:8]} "
+        f"{startdate_attr[9:11]}:{startdate_attr[11:13]}:{startdate_attr[13:15]}"
+    ).floor('5min')
+
+    # ------------------------------------------------------------------ #
+    # 2. Build FrameTimes across the full period
+    #    periods = however many time steps are in the dataset
+    # ------------------------------------------------------------------ #
+    NumFrames  = np.size(FeatureXR['times'])
+    FrameTimes = pd.date_range(start=PeriodStart, periods=NumFrames, freq='5min')
+
+    # Assign as coordinate on the dataset
+    FeatureXR = FeatureXR.assign_coords(
+        FrameTimes=xr.DataArray(FrameTimes, dims='FrameTimes')
+    )
+
+    FrameTimesIndices = pd.DatetimeIndex(FrameTimes)
+    StartTimeFloors   = pd.DatetimeIndex(FeatureXR['start_basetime'].values).floor('5min')
+
+    # ------------------------------------------------------------------ #
+    # 3. Map each track's floored start time to its FrameTimes index
+    #    Warn gracefully if a start time falls outside the FrameTimes range
+    # ------------------------------------------------------------------ #
+    StartFrameIndices = []
+    for t in StartTimeFloors:
+        try:
+            StartFrameIndices.append(FrameTimesIndices.get_loc(t))
+        except KeyError:
+            print(
+                f'  ⚠ start_basetime {t} not found in FrameTimes — '
+                f'period starts {FrameTimes[0]}, ends {FrameTimes[-1]}. '
+                f'Assigning index 0.'
+            )
+            StartFrameIndices.append(0)
+    StartFrameIndices = np.array(StartFrameIndices)
+
+    # ------------------------------------------------------------------ #
+    # 4. Collect all variables that have 'times' as a dimension
+    # ------------------------------------------------------------------ #
+    VarsWithTime = [var for var in FeatureXR.data_vars if 'times' in FeatureXR[var].dims]
+
     NewVars = {}
-    
+
     for var in VarsWithTime:
-        OldVar = FeatureXR[var]
-        OldValues =  OldVar.values
-        OldDims = list(OldVar.dims)
-    
+        OldVar    = FeatureXR[var]
+        OldValues = OldVar.values
+        OldDims   = list(OldVar.dims)
+
         # Determine fill value based on dtype
         if np.issubdtype(OldValues.dtype, np.floating):
             FillValue = np.nan
         else:
             FillValue = -9999
-    
+
         # Replace 'times' with 'FrameTimes' in the dimension list
         NewDims = [d if d != 'times' else 'FrameTimes' for d in OldDims]
-    
-        # Build the shape of the new array, replacing times axis size with n_frames
+
+        # Build the shape of the new array, replacing times axis size with NumFrames
         TimeAxis = OldDims.index('times')
         NewShape = list(OldValues.shape)
         NewShape[TimeAxis] = NumFrames
-    
+
         # Initialise new array with fill value
         NewValues = np.full(NewShape, FillValue, dtype=OldValues.dtype)
-    
+
         # --- Fill in data track by track ---
-        # Get the index of 'times' axis; handle both (times,) and (tracks, times)
         if 'tracks' in OldDims:
             NumTracks = OldValues.shape[OldDims.index('tracks')]
             for i in range(NumTracks):
                 StartIndex = StartFrameIndices[i]
-    
+
                 # Slice along tracks axis
                 TrackData = np.take(OldValues, i, axis=OldDims.index('tracks'))
-    
+
                 # Find valid (non-fill) entries
                 if np.issubdtype(OldValues.dtype, np.floating):
                     ValidMask = ~np.isnan(TrackData)
                 else:
                     ValidMask = TrackData != -9999
-    
-                ValidData = TrackData[ValidMask]
+
+                ValidData      = TrackData[ValidMask]
                 NumValidFrames = len(ValidData)
-    
-                # How many fit from start_idx to end of day
-                EndIndex = min(StartIndex + NumValidFrames, NumFrames)
-                TrackFrameLength  = EndIndex - StartIndex
-    
+
+                # How many fit from StartIndex to end of period
+                EndIndex         = min(StartIndex + NumValidFrames, NumFrames)
+                TrackFrameLength = EndIndex - StartIndex
+
                 # Place into new array along tracks axis
                 if OldDims.index('tracks') == 0:
                     NewValues[i, StartIndex:EndIndex] = ValidData[:TrackFrameLength]
                 else:
                     NewValues[StartIndex:EndIndex, i] = ValidData[:TrackFrameLength]
+
         else:
-            # Variable has only (times,) dimension — no track offset to apply
-            # Just copy directly; no per-track start index available
+            # Variable has only (times,) dimension — copy directly
             NewValues[:] = OldValues
-    
+
         NewVars[f'{var}_frametimes'] = xr.Variable(
-            dims=NewDims,
-            data=NewValues,
-            attrs=OldVar.attrs
+            dims  = NewDims,
+            data  = NewValues,
+            attrs = OldVar.attrs,
         )
-    
+
     # --- Assign all new variables ---
     FeatureXR = FeatureXR.assign(NewVars)
 
     return FeatureXR
+
 
 
 
