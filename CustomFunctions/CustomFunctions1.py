@@ -97,7 +97,35 @@ def pcolormeshC(x_centers, y_centers, z, ax=None,
     return pcm
 
 
+# calculating distances using lats and lons
+def latlon_to_xy_dist(lat1, lon1, lat2, lon2):
+    """
+    Calculate the X (East-West) and Y (North-South) distance
+    between two lat/lon points in kilometres.
 
+    Parameters
+    ----------
+    lat1 : float  - Latitude  of Point 1 (degrees)
+    lon1 : float  - Longitude of Point 1 (degrees)
+    lat2 : float  - Latitude  of Point 2 (degrees)
+    lon2 : float  - Longitude of Point 2 (degrees)
+
+    Returns
+    -------
+    dist_x_km : float - East-West   distance in m (positive = East)
+    dist_y_km : float - North-South distance in m (positive = North)
+    """
+
+    geod = Geod(ellps='WGS84')
+
+    az_fwd, _, dist_m = geod.inv(lon1, lat1, lon2, lat2)
+
+    az_rad = np.deg2rad(az_fwd)
+
+    dist_x_m = (dist_m * np.sin(az_rad)) 
+    dist_y_m = (dist_m * np.cos(az_rad)) 
+
+    return dist_x_m, dist_y_m
 
 
 def temp_crossing_altitude(sounding_df, crossing_temp):
@@ -739,3 +767,60 @@ def GridStatsFast(
 
     return variance_result, count_result
 
+
+
+
+
+# CHAD FUNCTION
+# CREATES ARRAYS FROM SPECIFIC VARIABLES IN FRAMETIMES
+# USED TO LATER FIND MEANS AND SUCH
+def TimeChunkArray(variable: str, time_range: str, min_lifetime: int, ds) -> np.ndarray:
+    """
+    Extracts a numpy array from an xarray Dataset for a given variable,
+    time range, and minimum track lifetime.
+
+    Parameters
+    ----------
+    variable : str
+        Name of the variable in the dataset (e.g., 'area_frametimes').
+    time_range : str
+        Time range in 'HH:MM-HH:MM' format (e.g., '14:00-16:00').
+    min_lifetime : int
+        Minimum lifetime in minutes a track must last to be included.
+        Set to 0 to include all tracks.
+    ds : xarray.Dataset
+        The xarray Dataset to extract from.
+
+    Returns
+    -------
+    np.ndarray
+        Array of shape (n_tracks, n_frametimes) for the specified time window,
+        filtered by minimum lifetime.
+    """
+
+    # --- Parse the time range string ---
+    start_str, end_str = time_range.split('-')
+
+    start_h, start_m = map(int, start_str.split(':'))
+    end_h,   end_m   = map(int,   end_str.split(':'))
+
+    start_minutes = start_h * 60 + start_m
+    end_minutes   = end_h   * 60 + end_m
+
+    # --- Convert minutes to FrameTime indices ---
+    start_idx = start_minutes // 5
+    end_idx   = (end_minutes  // 5) - 1
+
+    # --- Compute minimum number of frames required ---
+    # ceil(min_lifetime / 5) + 1 works universally:
+    # 0 min -> 1 frame (all tracks qualify, since every track has >= 1 frame)
+    # 5 min -> 2 frames, 6 min -> 3 frames, 10 min -> 3 frames, etc.
+    min_frames = math.ceil(min_lifetime / 5) + 1
+
+    # --- Filter tracks by lifetime ---
+    track_mask = ds['track_duration'].values >= min_frames
+
+    # --- Extract variable, filter tracks, return ---
+    data = ds[variable].isel(FrameTimes=slice(start_idx, end_idx + 1))
+
+    return data.isel(tracks=track_mask).values
