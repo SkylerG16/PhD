@@ -183,7 +183,7 @@ def GrabVarInfo(plot_variable: str, value_or_texture_or_count: str, variance_gri
         'Z': {
             'VarName':           'Reflectivity',
             'VarNameLong':       'corrected_reflectivity',
-            'VarMinVal':         -30,       # [dBZ]
+            'VarMinVal':           0,       # [dBZ]
             'VarMaxVal':          65,       # [dBZ]
             'VarUnit':           'dBZ',
             'VarFillValue':      -32.0,     # [dBZ]
@@ -191,6 +191,32 @@ def GrabVarInfo(plot_variable: str, value_or_texture_or_count: str, variance_gri
             'VarColourBar_min':  -30.0,
             'VarColourBar_max':  100.0,
             'VarColourBar_norm': Normalize(vmin=-30.0, vmax=100.0),
+            'VarTickSpacing':    10.0,
+        },
+        'Zred': {
+            'VarName':           'Reflectivity',
+            'VarNameLong':       'corrected_reflectivity',
+            'VarMinVal':          0,       # [dBZ]
+            'VarMaxVal':          65,       # [dBZ]
+            'VarUnit':           'dBZ',
+            'VarFillValue':      -32.0,     # [dBZ]
+            'VarColourBar':      'hot',
+            'VarColourBar_min':  -30.0,
+            'VarColourBar_max':  100.0,
+            'VarColourBar_norm': Normalize(vmin=-15.0, vmax=45.0),
+            'VarTickSpacing':    10.0,
+        },
+        'Zgray': {
+            'VarName':           'Reflectivity',
+            'VarNameLong':       'corrected_reflectivity',
+            'VarMinVal':          0,       # [dBZ]
+            'VarMaxVal':          65,       # [dBZ]
+            'VarUnit':           'dBZ',
+            'VarFillValue':      -32.0,     # [dBZ]
+            'VarColourBar':      'gray',
+            'VarColourBar_min':  -30.0,
+            'VarColourBar_max':  100.0,
+            'VarColourBar_norm': Normalize(vmin=-15.0, vmax=45.0),
             'VarTickSpacing':    10.0,
         },
         'V': {
@@ -813,6 +839,7 @@ def AddGridlines(ax, ThinLineThickness, MediumLineThickness, ThickLineThickness,
 
 
 
+
 # ADD GATE COORDINATES (LATS AND LONS) TO PPI DATA FOR PLOTTING
 def AddGateCoords(RadarXR, LonShift):
     """
@@ -911,6 +938,78 @@ def AddGateCoords(RadarXR, LonShift):
     RadarXR['gate_altitude']  = AltsData
 
     return RadarXR
+
+
+
+# ADD GATE COORDINATES (LATS AND LONS) TO PPI DATA FOR PLOTTING
+# SECOND VERSION
+def AddGridlines2(ax, ThinLineThickness, MediumLineThickness, ThickLineThickness,
+                     ThinLineFrequency, MediumLineFrequency, ThickLineFrequency, StandOutColour):
+
+    Extent   = ax.get_extent(crs=ccrs.PlateCarree())
+    LonMin_g = Extent[0]
+    LonMax_g = Extent[1]
+    LatMin_g = Extent[2]
+    LatMax_g = Extent[3]
+
+    # Build tick arrays for each frequency
+    LonsThin   = np.arange(np.floor(LonMin_g / ThinLineFrequency)   * ThinLineFrequency,
+                           np.ceil( LonMax_g / ThinLineFrequency)   * ThinLineFrequency   + ThinLineFrequency,   ThinLineFrequency)
+    LatsThin   = np.arange(np.floor(LatMin_g / ThinLineFrequency)   * ThinLineFrequency,
+                           np.ceil( LatMax_g / ThinLineFrequency)   * ThinLineFrequency   + ThinLineFrequency,   ThinLineFrequency)
+
+    LonsMedium = np.arange(np.floor(LonMin_g / MediumLineFrequency) * MediumLineFrequency,
+                           np.ceil( LonMax_g / MediumLineFrequency) * MediumLineFrequency + MediumLineFrequency, MediumLineFrequency)
+    LatsMedium = np.arange(np.floor(LatMin_g / MediumLineFrequency) * MediumLineFrequency,
+                           np.ceil( LatMax_g / MediumLineFrequency) * MediumLineFrequency + MediumLineFrequency, MediumLineFrequency)
+
+    LonsThick  = np.arange(np.floor(LonMin_g / ThickLineFrequency)  * ThickLineFrequency,
+                           np.ceil( LonMax_g / ThickLineFrequency)  * ThickLineFrequency  + ThickLineFrequency,  ThickLineFrequency)
+    LatsThick  = np.arange(np.floor(LatMin_g / ThickLineFrequency)  * ThickLineFrequency,
+                           np.ceil( LatMax_g / ThickLineFrequency)  * ThickLineFrequency  + ThickLineFrequency,  ThickLineFrequency)
+
+    T = ccrs.PlateCarree()
+
+    # ── THIN LINES ────────────────────────────────────────────────────────────
+    for Lon in LonsThin:
+        ax.plot([Lon, Lon], [LatMin_g, LatMax_g], color=StandOutColour,
+                linewidth=ThinLineThickness, alpha=0.4, zorder=20, transform=T)
+    for Lat in LatsThin:
+        ax.plot([LonMin_g, LonMax_g], [Lat, Lat], color=StandOutColour,
+                linewidth=ThinLineThickness, alpha=0.4, zorder=20, transform=T)
+
+    # ── MEDIUM LINES ──────────────────────────────────────────────────────────
+    for Lon in LonsMedium:
+        ax.plot([Lon, Lon], [LatMin_g, LatMax_g], color=StandOutColour,
+                linewidth=MediumLineThickness, alpha=0.5, zorder=21, transform=T)
+    for Lat in LatsMedium:
+        ax.plot([LonMin_g, LonMax_g], [Lat, Lat], color=StandOutColour,
+                linewidth=MediumLineThickness, alpha=0.5, zorder=21, transform=T)
+
+    # ── THICK LINES ───────────────────────────────────────────────────────────
+    for Lon in LonsThick:
+        ax.plot([Lon, Lon], [LatMin_g, LatMax_g], color=StandOutColour,
+                linewidth=ThickLineThickness, alpha=0.7, zorder=22, transform=T)
+    for Lat in LatsThick:
+        ax.plot([LonMin_g, LonMax_g], [Lat, Lat], color=StandOutColour,
+                linewidth=ThickLineThickness, alpha=0.7, zorder=22, transform=T)
+
+    # ── TICK LABELS ON THICK LINES ONLY ──────────────────────────────────────
+    ax.set_xticks(LonsThick, crs=ccrs.PlateCarree())
+    ax.set_yticks(LatsThick, crs=ccrs.PlateCarree())
+
+    ax.xaxis.set_major_formatter(LONGITUDE_FORMATTER)
+    ax.yaxis.set_major_formatter(LATITUDE_FORMATTER)
+
+    ax.tick_params(axis='both', colors=StandOutColour, labelsize=7)
+
+    for Label in ax.get_xticklabels() + ax.get_yticklabels():
+        Label.set_color(StandOutColour)
+
+    # ax.set_xlabel('Longitude', color=StandOutColour)
+    # ax.set_ylabel('Latitude',  color=StandOutColour)
+
+
 
 
 
