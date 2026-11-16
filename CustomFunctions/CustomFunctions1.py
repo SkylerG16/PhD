@@ -824,3 +824,207 @@ def TimeChunkArray(variable: str, time_range: str, min_lifetime: int, ds) -> np.
     data = ds[variable].isel(FrameTimes=slice(start_idx, end_idx + 1))
 
     return data.isel(tracks=track_mask).values
+
+
+
+# CHAD FUNCTION
+# PPI MASKER
+# removes data from PPI data before gridding
+# based on minimum/ maximum allowed variables or local variable variance values
+def QCMaskRadarData(
+    RadarDay, MinOfDay,
+    RadarIDno, RadarYear, RadarMonth,
+    LoopStartTime, LoopEndTime,
+    QualityControlOption,
+    VarianceGridSize,
+    MinZ, MinRhoHV,
+    MaxZvariance, MaxVvariance, MaxZDRvariance, MaxRhoHVvariance,
+    MinZcount, MinVcount, MinZDRcount, MinRhoHVcount, MinKDPcount
+):
+
+    import warnings # !!!!!
+    warnings.filterwarnings('ignore', message='Degrees of freedom <= 0', category=RuntimeWarning)
+
+    YYYY = str(RadarYear).zfill(4)
+    MM   = str(RadarMonth).zfill(2)
+    DD   = str(RadarDay).zfill(2)
+
+    RadarFileDate      = YYYY + MM + DD
+    RadarFileDatePrint = YYYY + '-' + MM + '-' + DD
+
+    houri = MinOfDay // 60
+    mini  = MinOfDay % 60
+    RadarFileTime      = str(houri).zfill(2) + str(mini).zfill(2) + '00'
+    RadarFileTimePrint = RadarFileTime[0:2] + ':' + RadarFileTime[2:4] + ':' + RadarFileTime[4:6]
+
+    # print(f'working on {RadarFileDatePrint} {RadarFileTimePrint}')
+
+    QC0storageFolder = (
+        f'/scratch/v46/sg3241/tmp/UnzippedRadarFiles/'
+        f'QC0/Radar{RadarIDno}/{YYYY}/{RadarIDno}_{RadarFileDate}_ppi/'
+    )
+    QC0storageFile = f'{RadarIDno}_{RadarFileDate}_{RadarFileTime}_ppi.nc'
+    QC0storagePath = QC0storageFolder + QC0storageFile
+
+    try:
+        RadarXR = xr.open_dataset(QC0storagePath, decode_timedelta=False)
+    except FileNotFoundError:
+        print(f'File missing for {RadarFileTimePrint}, skipping: {QC0storagePath}')
+        return None
+
+    # --- Variance computation ---
+    grid_size = 3 if VarianceGridSize == '3x3' else 5
+
+    Zvar = Zcount = Vvar = Vcount = None
+    RhoHVvar = RhoHVcount = ZDRvar = ZDRcount = None
+
+    if MaxZvariance != 'none':
+        Zvar, Zcount = GridStatsFast(RadarXR, 'corrected_reflectivity', grid_size, fill_value=-32.0)
+    if MaxVvariance != 'none':
+        Vvar, Vcount = GridStatsFast(RadarXR, 'corrected_velocity', grid_size, fill_value=[-300, 0.009155552842798897])
+    if MaxRhoHVvariance != 'none':
+        RhoHVvar, RhoHVcount = GridStatsFast(RadarXR, 'corrected_cross_correlation_ratio', grid_size, fill_value=[0.0])
+    if MaxZDRvariance != 'none':
+        ZDRvar, ZDRcount = GridStatsFast(RadarXR, 'corrected_differential_reflectivity', grid_size, fill_value=[-15.0, 10.00015259254738])
+
+    # --- Mask creation ---
+    ReferenceVar = RadarXR['corrected_reflectivity']
+    QCmask = xr.ones_like(ReferenceVar, dtype=bool)
+
+    if MinZ     != 'none': QCmask = QCmask & (RadarXR['corrected_reflectivity']             >= MinZ)
+    if MinRhoHV != 'none': QCmask = QCmask & (RadarXR['corrected_cross_correlation_ratio']  >= MinRhoHV)
+
+    if MaxZvariance    != 'none': QCmask = QCmask & (Zvar    <= MaxZvariance)
+    if MaxVvariance    != 'none': QCmask = QCmask & (Vvar    <= MaxVvariance)
+    if MaxZDRvariance  != 'none': QCmask = QCmask & (ZDRvar  <= MaxZDRvariance)
+    if MaxRhoHVvariance!= 'none': QCmask = QCmask & (RhoHVvar<= MaxRhoHVvariance)
+
+    if MinZcount    != 'none': QCmask = QCmask & (Zcount    >= MinZcount)
+    if MinVcount    != 'none': QCmask = QCmask & (Vcount    >= MinVcount)
+    if MinZDRcount  != 'none': QCmask = QCmask & (ZDRcount  >= MinZDRcount)
+    if MinRhoHVcount!= 'none': QCmask = QCmask & (RhoHVcount>= MinRhoHVcount)
+
+    # --- Apply mask ---
+    MaskedVars = {}
+    for VarName, Da in RadarXR.data_vars.items():
+        MaskedVars[VarName] = Da.where(QCmask) if Da.dims == ('time', 'range') else Da
+
+    RadarXR_QC = RadarXR.assign(MaskedVars)
+
+    SaveFolder = f'/scratch/v46/sg3241/tmp/UnzippedRadarFiles/QC{QualityControlOption}/Radar{RadarIDno}/{YYYY}/{RadarFileDate}/'
+
+    SaveFile   = f'{RadarIDno}_{RadarFileDate}_{RadarFileTime}_ppi_QC{QualityControlOption}.nc'
+    SavePath   = SaveFolder + SaveFile
+
+    Path(SaveFolder).mkdir(parents=True, exist_ok=True)
+    if Path(SavePath).exists():
+        Path(SavePath).unlink()
+
+    try:
+        RadarXR_QC.to_netcdf(SavePath, mode='w', encoding={var: {'zlib': True, 'complevel': 4} for var in RadarXR.data_vars})
+        
+        print(f'Successfully saved: {SavePath}')
+    except PermissionError as e:
+        print(f'Permission denied writing to {SavePath}: {e}')
+
+    return SavePath
+
+
+
+# CHAD FUNCTION
+# FOR PARALLELISED DASK AND PROGRESS BAR RUNNING
+# GRIDDING THE PPI DATA USING LEROI FUNCTION
+def RadarGriddingLEROI(
+    MinOfDay, RadarIDno, RadarYear, RadarMonth, RadarDay
+):
+    """Process a single radar timestep."""
+    warnings.filterwarnings('ignore')
+
+    CompLevel            = 4
+    QualityControlOption = 2
+
+    YYYY = str(RadarYear).zfill(4)
+    MM   = str(RadarMonth).zfill(2)
+    DD   = str(RadarDay).zfill(2)
+
+    RadarFileDate      = YYYY + MM + DD
+    RadarFileDatePrint = YYYY + '-' + MM + '-' + DD
+
+    try:
+        houri = MinOfDay // 60
+        mini  = MinOfDay % 60
+        RadarFileTime      = str(houri).zfill(2) + str(mini).zfill(2) + '00'
+        RadarFileTimePrint = RadarFileTime[0:2] + ':' + RadarFileTime[2:4] + ':' + RadarFileTime[4:6]
+
+        # Read radar data
+        LoadFolder = f'/scratch/v46/sg3241/tmp/UnzippedRadarFiles/QC{QualityControlOption}/Radar{RadarIDno}/{YYYY}/{RadarFileDate}/'
+        LoadFile   = f'{RadarIDno}_{RadarFileDate}_{RadarFileTime}_ppi_QC{QualityControlOption}.nc'
+
+        radar  = pyart.io.read(LoadFolder + LoadFile, delay_field_loading=True)
+        fields = list(radar.fields.keys())
+
+        # Define grid
+        grid_shape  = (41, 301, 301)
+        grid_limits = ((0.0, 20000.0), (-150000.0, 150000.0), (-150000.0, 150000.0))
+        coords = [
+            np.linspace(lower, upper, n)
+            for (lower, upper), n in zip(grid_limits, grid_shape)
+        ]
+
+        # Interpolate and grid
+        grid_fields = leroi_interp(
+            radar,
+            coords,
+            field_names  = fields,
+            weight_type  = "Barnes",
+            Rc           = None,
+            k            = 100,
+            verbose      = False
+        )
+
+        grid  = build_pyart_grid(radar, grid_fields, grid_shape, grid_limits)
+        xgrid = grid.to_xarray()
+
+        # Save NetCDF
+        NetCDFsaveFolder = (
+            f'/scratch/v46/sg3241/tmp/CustomRadarGrids/'
+            f'QC{QualityControlOption}/Radar{RadarIDno}/{YYYY}/{YYYY}{MM}{DD}/'
+        )
+        NetCDFsaveFile = (
+            f'{RadarIDno}_{RadarFileDate}_{RadarFileTime}'
+            f'_QC{QualityControlOption}.nc'
+        )
+        NetCDFsavePath = NetCDFsaveFolder + NetCDFsaveFile
+
+        Path(NetCDFsaveFolder).mkdir(parents=True, exist_ok=True)
+
+        encoding = {}
+        for var in xgrid.data_vars:
+            if xgrid[var].ndim < 2:
+                continue
+            encoding[var] = {
+                'zlib':       True,
+                'complevel':  CompLevel,
+                'fletcher32': True,
+                'chunksizes': tuple(s // 2 for s in xgrid[var].shape),
+            }
+
+        if os.path.exists(NetCDFsavePath):
+            os.remove(NetCDFsavePath)
+
+        xgrid.to_netcdf(NetCDFsavePath, format='NETCDF4', engine='netcdf4', encoding=encoding)
+
+        # --- Explicitly release large objects before returning ---
+        del radar, grid, xgrid, grid_fields, coords
+        gc.collect()
+
+        # Force C-level memory to be returned to the OS
+        try:
+            ctypes.CDLL('libc.so.6').malloc_trim(0)
+        except Exception:
+            pass
+
+        return f'✓ Completed {RadarFileTimePrint}'
+
+    except Exception as e:
+        return f'✗ Failed {RadarFileTimePrint}: {str(e)}'
