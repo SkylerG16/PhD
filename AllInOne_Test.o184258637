@@ -1,0 +1,13 @@
+/local/spool/pbs/mom_priv/jobs/184258637.gadi-pbs.SC: line 23: /g/data/xp65/public/apps/med_conda/envs/analysis3-26.10/bin/python3: No such file or directory
+
+======================================================================================
+                  Resource Usage on 2026-11-17 14:50:41:
+   Job Id:             184258637.gadi-pbs
+   Project:            v46
+   Exit Status:        127
+   Service Units:      0.00
+   NCPUs Requested:    1                   CPU Time Used: 00:00:00        
+   Memory Requested:   16.0GB                Memory Used: 7.17MB          
+   Walltime Requested: 01:00:00            Walltime Used: 00:00:00        
+   JobFS Requested:    100.0MB                JobFS Used: 0B              
+======================================================================================

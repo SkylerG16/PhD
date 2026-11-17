@@ -1,0 +1,15 @@
+Loading conda/analysis3-26.10
+  Loading requirement: singularity
+/local/spool/pbs/mom_priv/jobs/184264195.gadi-pbs.SC: line 27: /home/563/sg3241/Notebooks/PhD/AllInOneZonly.py: Permission denied
+
+======================================================================================
+                  Resource Usage on 2026-11-17 15:25:46:
+   Job Id:             184264195.gadi-pbs
+   Project:            v46
+   Exit Status:        126
+   Service Units:      0.00
+   NCPUs Requested:    1                   CPU Time Used: 00:00:00        
+   Memory Requested:   16.0GB                Memory Used: 7.73MB          
+   Walltime Requested: 01:00:00            Walltime Used: 00:00:01        
+   JobFS Requested:    100.0MB                JobFS Used: 0B              
+======================================================================================

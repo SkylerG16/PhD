@@ -1,0 +1,13 @@
+ERROR: Directory '/g/data/xp65/public/modules' not found
+
+======================================================================================
+                  Resource Usage on 2026-11-17 15:05:42:
+   Job Id:             184260604.gadi-pbs
+   Project:            v46
+   Exit Status:        1
+   Service Units:      0.00
+   NCPUs Requested:    1                   CPU Time Used: 00:00:00        
+   Memory Requested:   16.0GB                Memory Used: 7.12MB          
+   Walltime Requested: 01:00:00            Walltime Used: 00:00:01        
+   JobFS Requested:    100.0MB                JobFS Used: 0B              
+======================================================================================

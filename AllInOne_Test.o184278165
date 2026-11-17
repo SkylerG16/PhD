@@ -1,0 +1,105 @@
+Loading conda/analysis3-26.10
+  Loading requirement: singularity
+INFO:argopy.stores.ArgoFloat:Using OFFLINE Argo Float implementation
+
+## You are using the Python ARM Radar Toolkit (Py-ART), an open source
+## library for working with weather radar data. Py-ART is partly supported
+## by the U.S. Department of Energy Office of Science as part of
+## the Atmospheric Radiation Measurement (ARM) User Facility.
+##
+## If you use this software to prepare a publication, please cite:
+##
+##     JJ Helmus and SM Collis, JORS 2016, doi: 10.5334/jors.119
+
+Working on 2025-03-21
+Unzipped Folder Already Exists
+working on 2025-03-21 06:00:00
+File missing for 06:00:00, skipping: /scratch/v46/sg3241/tmp/UnzippedRadarFiles/QC0/Radar106/2025/106_20250321_ppi/106_20250321_060000_ppi.nc
+working on 2025-03-21 06:05:00
+File missing for 06:05:00, skipping: /scratch/v46/sg3241/tmp/UnzippedRadarFiles/QC0/Radar106/2025/106_20250321_ppi/106_20250321_060500_ppi.nc
+working on 2025-03-21 06:10:00
+File missing for 06:10:00, skipping: /scratch/v46/sg3241/tmp/UnzippedRadarFiles/QC0/Radar106/2025/106_20250321_ppi/106_20250321_061000_ppi.nc
+working on 2025-03-21 06:15:00
+File missing for 06:15:00, skipping: /scratch/v46/sg3241/tmp/UnzippedRadarFiles/QC0/Radar106/2025/106_20250321_ppi/106_20250321_061500_ppi.nc
+working on 2025-03-21 06:20:00
+File missing for 06:20:00, skipping: /scratch/v46/sg3241/tmp/UnzippedRadarFiles/QC0/Radar106/2025/106_20250321_ppi/106_20250321_062000_ppi.nc
+working on 2025-03-21 06:25:00
+File missing for 06:25:00, skipping: /scratch/v46/sg3241/tmp/UnzippedRadarFiles/QC0/Radar106/2025/106_20250321_ppi/106_20250321_062500_ppi.nc
+working on 2025-03-21 06:30:00
+File missing for 06:30:00, skipping: /scratch/v46/sg3241/tmp/UnzippedRadarFiles/QC0/Radar106/2025/106_20250321_ppi/106_20250321_063000_ppi.nc
+working on 2025-03-21 06:35:00
+File missing for 06:35:00, skipping: /scratch/v46/sg3241/tmp/UnzippedRadarFiles/QC0/Radar106/2025/106_20250321_ppi/106_20250321_063500_ppi.nc
+working on 2025-03-21 06:40:00
+File missing for 06:40:00, skipping: /scratch/v46/sg3241/tmp/UnzippedRadarFiles/QC0/Radar106/2025/106_20250321_ppi/106_20250321_064000_ppi.nc
+working on 2025-03-21 06:45:00
+File missing for 06:45:00, skipping: /scratch/v46/sg3241/tmp/UnzippedRadarFiles/QC0/Radar106/2025/106_20250321_ppi/106_20250321_064500_ppi.nc
+working on 2025-03-21 06:50:00
+File missing for 06:50:00, skipping: /scratch/v46/sg3241/tmp/UnzippedRadarFiles/QC0/Radar106/2025/106_20250321_ppi/106_20250321_065000_ppi.nc
+working on 2025-03-21 06:55:00
+File missing for 06:55:00, skipping: /scratch/v46/sg3241/tmp/UnzippedRadarFiles/QC0/Radar106/2025/106_20250321_ppi/106_20250321_065500_ppi.nc
+working on 06:00:00
+File missing for 06:00:00, skipping: /scratch/v46/sg3241/tmp/UnzippedRadarFiles/QC2/Radar106/2025/106_20250321_ppi/106_20250321_060000_ppi_QC2.nc
+working on 06:05:00
+File missing for 06:05:00, skipping: /scratch/v46/sg3241/tmp/UnzippedRadarFiles/QC2/Radar106/2025/106_20250321_ppi/106_20250321_060500_ppi_QC2.nc
+working on 06:10:00
+File missing for 06:10:00, skipping: /scratch/v46/sg3241/tmp/UnzippedRadarFiles/QC2/Radar106/2025/106_20250321_ppi/106_20250321_061000_ppi_QC2.nc
+working on 06:15:00
+File missing for 06:15:00, skipping: /scratch/v46/sg3241/tmp/UnzippedRadarFiles/QC2/Radar106/2025/106_20250321_ppi/106_20250321_061500_ppi_QC2.nc
+working on 06:20:00
+File missing for 06:20:00, skipping: /scratch/v46/sg3241/tmp/UnzippedRadarFiles/QC2/Radar106/2025/106_20250321_ppi/106_20250321_062000_ppi_QC2.nc
+working on 06:25:00
+File missing for 06:25:00, skipping: /scratch/v46/sg3241/tmp/UnzippedRadarFiles/QC2/Radar106/2025/106_20250321_ppi/106_20250321_062500_ppi_QC2.nc
+working on 06:30:00
+File missing for 06:30:00, skipping: /scratch/v46/sg3241/tmp/UnzippedRadarFiles/QC2/Radar106/2025/106_20250321_ppi/106_20250321_063000_ppi_QC2.nc
+working on 06:35:00
+File missing for 06:35:00, skipping: /scratch/v46/sg3241/tmp/UnzippedRadarFiles/QC2/Radar106/2025/106_20250321_ppi/106_20250321_063500_ppi_QC2.nc
+working on 06:40:00
+File missing for 06:40:00, skipping: /scratch/v46/sg3241/tmp/UnzippedRadarFiles/QC2/Radar106/2025/106_20250321_ppi/106_20250321_064000_ppi_QC2.nc
+working on 06:45:00
+File missing for 06:45:00, skipping: /scratch/v46/sg3241/tmp/UnzippedRadarFiles/QC2/Radar106/2025/106_20250321_ppi/106_20250321_064500_ppi_QC2.nc
+working on 06:50:00
+File missing for 06:50:00, skipping: /scratch/v46/sg3241/tmp/UnzippedRadarFiles/QC2/Radar106/2025/106_20250321_ppi/106_20250321_065000_ppi_QC2.nc
+working on 06:55:00
+File missing for 06:55:00, skipping: /scratch/v46/sg3241/tmp/UnzippedRadarFiles/QC2/Radar106/2025/106_20250321_ppi/106_20250321_065500_ppi_QC2.nc
+Working on 06:00:00
+File missing for 06:00:00, skipping: /scratch/v46/sg3241/tmp/CustomRadarGrids/QC2/Radar106/20250321/106_20250321_060000_QC2.nc
+Working on 06:05:00
+File missing for 06:05:00, skipping: /scratch/v46/sg3241/tmp/CustomRadarGrids/QC2/Radar106/20250321/106_20250321_060500_QC2.nc
+Working on 06:10:00
+File missing for 06:10:00, skipping: /scratch/v46/sg3241/tmp/CustomRadarGrids/QC2/Radar106/20250321/106_20250321_061000_QC2.nc
+Working on 06:15:00
+File missing for 06:15:00, skipping: /scratch/v46/sg3241/tmp/CustomRadarGrids/QC2/Radar106/20250321/106_20250321_061500_QC2.nc
+Working on 06:20:00
+File missing for 06:20:00, skipping: /scratch/v46/sg3241/tmp/CustomRadarGrids/QC2/Radar106/20250321/106_20250321_062000_QC2.nc
+Working on 06:25:00
+File missing for 06:25:00, skipping: /scratch/v46/sg3241/tmp/CustomRadarGrids/QC2/Radar106/20250321/106_20250321_062500_QC2.nc
+Working on 06:30:00
+File missing for 06:30:00, skipping: /scratch/v46/sg3241/tmp/CustomRadarGrids/QC2/Radar106/20250321/106_20250321_063000_QC2.nc
+Working on 06:35:00
+File missing for 06:35:00, skipping: /scratch/v46/sg3241/tmp/CustomRadarGrids/QC2/Radar106/20250321/106_20250321_063500_QC2.nc
+Working on 06:40:00
+File missing for 06:40:00, skipping: /scratch/v46/sg3241/tmp/CustomRadarGrids/QC2/Radar106/20250321/106_20250321_064000_QC2.nc
+Working on 06:45:00
+File missing for 06:45:00, skipping: /scratch/v46/sg3241/tmp/CustomRadarGrids/QC2/Radar106/20250321/106_20250321_064500_QC2.nc
+Working on 06:50:00
+File missing for 06:50:00, skipping: /scratch/v46/sg3241/tmp/CustomRadarGrids/QC2/Radar106/20250321/106_20250321_065000_QC2.nc
+Working on 06:55:00
+File missing for 06:55:00, skipping: /scratch/v46/sg3241/tmp/CustomRadarGrids/QC2/Radar106/20250321/106_20250321_065500_QC2.nc
+Found 0 total cellid files
+Found 0 cellid files within period
+Traceback (most recent call last):
+  File "/home/563/sg3241/Notebooks/PhD/AllInOneZonly.py", line 791, in <module>
+    raise FileNotFoundError(
+FileNotFoundError: No cellid files found between 2025-03-21UTC06:00:00 and 2025-03-21UTC06:55:59 in /scratch/v46/sg3241/tmp/PyFLEXTRKRnetCDFs/V5/QC2/Radar106/2025/20250321/SingleTimes/
+
+======================================================================================
+                  Resource Usage on 2026-11-17 16:49:45:
+   Job Id:             184278165.gadi-pbs
+   Project:            v46
+   Exit Status:        1
+   Service Units:      0.19
+   NCPUs Requested:    1                   CPU Time Used: 00:00:18        
+   Memory Requested:   16.0GB                Memory Used: 1.54GB          
+   Walltime Requested: 01:00:00            Walltime Used: 00:01:24        
+   JobFS Requested:    100.0MB                JobFS Used: 0B              
+======================================================================================

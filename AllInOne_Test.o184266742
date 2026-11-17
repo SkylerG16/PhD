@@ -1,0 +1,33 @@
+Loading conda/analysis3-26.10
+  Loading requirement: singularity
+
+## You are using the Python ARM Radar Toolkit (Py-ART), an open source
+## library for working with weather radar data. Py-ART is partly supported
+## by the U.S. Department of Energy Office of Science as part of
+## the Atmospheric Radiation Measurement (ARM) User Facility.
+##
+## If you use this software to prepare a publication, please cite:
+##
+##     JJ Helmus and SM Collis, JORS 2016, doi: 10.5334/jors.119
+
+Working on 2025-03-21
+Traceback (most recent call last):
+  File "/home/563/sg3241/Notebooks/PhD/AllInOneZonly.py", line 129, in <module>
+    with zp.ZipFile(ZippedPath, 'r') as ZipReference:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/g/data/xp65/public/apps/med_conda/envs/analysis3-26.10/lib/python3.12/zipfile/__init__.py", line 1352, in __init__
+    self.fp = io.open(file, filemode)
+              ^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/g/data/rq0/level_1b/v2026/ppi/106/2025/106_20250321_ppi.zip'
+
+======================================================================================
+                  Resource Usage on 2026-11-17 15:44:29:
+   Job Id:             184266742.gadi-pbs
+   Project:            v46
+   Exit Status:        1
+   Service Units:      0.05
+   NCPUs Requested:    1                   CPU Time Used: 00:00:09        
+   Memory Requested:   16.0GB                Memory Used: 995.31MB        
+   Walltime Requested: 01:00:00            Walltime Used: 00:00:21        
+   JobFS Requested:    100.0MB                JobFS Used: 0B              
+======================================================================================

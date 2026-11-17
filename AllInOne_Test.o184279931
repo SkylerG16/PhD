@@ -1,0 +1,356 @@
+Loading conda/analysis3-26.10
+  Loading requirement: singularity
+INFO:argopy.stores.ArgoFloat:Using OFFLINE Argo Float implementation
+INFO:pyflextrkr.idcells_reflectivity:Squeezed time dimension (size=1) from dataset
+INFO:pyflextrkr.idcells_reflectivity:Using specified vertical coordinate type: height
+INFO:pyflextrkr.idcells_reflectivity:Standardizing z units...
+WARNING:pyflextrkr.idcells_reflectivity:z has no 'units' attribute and no override provided
+WARNING:pyflextrkr.idcells_reflectivity:Assuming z is already in standard units (m)
+INFO:pyflextrkr.idcells_reflectivity:z_coord unit standardization: no conversion (no units attribute)
+INFO:pyflextrkr.idcells_reflectivity:No terrain file specified. Using default surface height: 0.0 m
+INFO:pyflextrkr.idcells_reflectivity:Standardizing sfc_elev units...
+WARNING:pyflextrkr.idcells_reflectivity:sfc_elev has no 'units' attribute and no override provided
+WARNING:pyflextrkr.idcells_reflectivity:Assuming sfc_elev is already in standard units (m)
+INFO:pyflextrkr.idcells_reflectivity:sfc_elev unit standardization: no conversion (no units attribute)
+INFO:pyflextrkr.idcells_reflectivity:/scratch/v46/sg3241/tmp/PyFLEXTRKRnetCDFs/V5/QC2/Radar106/2025/20250321/SingleTimes/cellidfile_tmp_20250321_060427.nc
+INFO:pyflextrkr.idcells_reflectivity:Squeezed time dimension (size=1) from dataset
+INFO:pyflextrkr.idcells_reflectivity:Using specified vertical coordinate type: height
+INFO:pyflextrkr.idcells_reflectivity:Standardizing z units...
+WARNING:pyflextrkr.idcells_reflectivity:z has no 'units' attribute and no override provided
+WARNING:pyflextrkr.idcells_reflectivity:Assuming z is already in standard units (m)
+INFO:pyflextrkr.idcells_reflectivity:z_coord unit standardization: no conversion (no units attribute)
+INFO:pyflextrkr.idcells_reflectivity:No terrain file specified. Using default surface height: 0.0 m
+INFO:pyflextrkr.idcells_reflectivity:Standardizing sfc_elev units...
+WARNING:pyflextrkr.idcells_reflectivity:sfc_elev has no 'units' attribute and no override provided
+WARNING:pyflextrkr.idcells_reflectivity:Assuming sfc_elev is already in standard units (m)
+INFO:pyflextrkr.idcells_reflectivity:sfc_elev unit standardization: no conversion (no units attribute)
+INFO:pyflextrkr.idcells_reflectivity:/scratch/v46/sg3241/tmp/PyFLEXTRKRnetCDFs/V5/QC2/Radar106/2025/20250321/SingleTimes/cellidfile_tmp_20250321_060927.nc
+INFO:pyflextrkr.idcells_reflectivity:Squeezed time dimension (size=1) from dataset
+INFO:pyflextrkr.idcells_reflectivity:Using specified vertical coordinate type: height
+INFO:pyflextrkr.idcells_reflectivity:Standardizing z units...
+WARNING:pyflextrkr.idcells_reflectivity:z has no 'units' attribute and no override provided
+WARNING:pyflextrkr.idcells_reflectivity:Assuming z is already in standard units (m)
+INFO:pyflextrkr.idcells_reflectivity:z_coord unit standardization: no conversion (no units attribute)
+INFO:pyflextrkr.idcells_reflectivity:No terrain file specified. Using default surface height: 0.0 m
+INFO:pyflextrkr.idcells_reflectivity:Standardizing sfc_elev units...
+WARNING:pyflextrkr.idcells_reflectivity:sfc_elev has no 'units' attribute and no override provided
+WARNING:pyflextrkr.idcells_reflectivity:Assuming sfc_elev is already in standard units (m)
+INFO:pyflextrkr.idcells_reflectivity:sfc_elev unit standardization: no conversion (no units attribute)
+INFO:pyflextrkr.idcells_reflectivity:/scratch/v46/sg3241/tmp/PyFLEXTRKRnetCDFs/V5/QC2/Radar106/2025/20250321/SingleTimes/cellidfile_tmp_20250321_061427.nc
+INFO:pyflextrkr.idcells_reflectivity:Squeezed time dimension (size=1) from dataset
+INFO:pyflextrkr.idcells_reflectivity:Using specified vertical coordinate type: height
+INFO:pyflextrkr.idcells_reflectivity:Standardizing z units...
+WARNING:pyflextrkr.idcells_reflectivity:z has no 'units' attribute and no override provided
+WARNING:pyflextrkr.idcells_reflectivity:Assuming z is already in standard units (m)
+INFO:pyflextrkr.idcells_reflectivity:z_coord unit standardization: no conversion (no units attribute)
+INFO:pyflextrkr.idcells_reflectivity:No terrain file specified. Using default surface height: 0.0 m
+INFO:pyflextrkr.idcells_reflectivity:Standardizing sfc_elev units...
+WARNING:pyflextrkr.idcells_reflectivity:sfc_elev has no 'units' attribute and no override provided
+WARNING:pyflextrkr.idcells_reflectivity:Assuming sfc_elev is already in standard units (m)
+INFO:pyflextrkr.idcells_reflectivity:sfc_elev unit standardization: no conversion (no units attribute)
+INFO:pyflextrkr.idcells_reflectivity:/scratch/v46/sg3241/tmp/PyFLEXTRKRnetCDFs/V5/QC2/Radar106/2025/20250321/SingleTimes/cellidfile_tmp_20250321_061928.nc
+
+## You are using the Python ARM Radar Toolkit (Py-ART), an open source
+## library for working with weather radar data. Py-ART is partly supported
+## by the U.S. Department of Energy Office of Science as part of
+## the Atmospheric Radiation Measurement (ARM) User Facility.
+##
+## If you use this software to prepare a publication, please cite:
+##
+##     JJ Helmus and SM Collis, JORS 2016, doi: 10.5334/jors.119
+
+Working on 2025-03-21
+Done
+working on 2025-03-21 06:00:00
+Computed 'corrected_reflectivity_3x3grid_variance'.
+Computed 'corrected_reflectivity_3x3grid_count'.
+Successfully saved: /scratch/v46/sg3241/tmp/UnzippedRadarFiles/QC2/Radar106/2025/106_20250321_ppi/106_20250321_060000_ppi_QC2.nc
+working on 2025-03-21 06:05:00
+Computed 'corrected_reflectivity_3x3grid_variance'.
+Computed 'corrected_reflectivity_3x3grid_count'.
+Successfully saved: /scratch/v46/sg3241/tmp/UnzippedRadarFiles/QC2/Radar106/2025/106_20250321_ppi/106_20250321_060500_ppi_QC2.nc
+working on 2025-03-21 06:10:00
+Computed 'corrected_reflectivity_3x3grid_variance'.
+Computed 'corrected_reflectivity_3x3grid_count'.
+Successfully saved: /scratch/v46/sg3241/tmp/UnzippedRadarFiles/QC2/Radar106/2025/106_20250321_ppi/106_20250321_061000_ppi_QC2.nc
+working on 2025-03-21 06:15:00
+Computed 'corrected_reflectivity_3x3grid_variance'.
+Computed 'corrected_reflectivity_3x3grid_count'.
+Successfully saved: /scratch/v46/sg3241/tmp/UnzippedRadarFiles/QC2/Radar106/2025/106_20250321_ppi/106_20250321_061500_ppi_QC2.nc
+working on 2025-03-21 06:20:00
+Computed 'corrected_reflectivity_3x3grid_variance'.
+Computed 'corrected_reflectivity_3x3grid_count'.
+Successfully saved: /scratch/v46/sg3241/tmp/UnzippedRadarFiles/QC2/Radar106/2025/106_20250321_ppi/106_20250321_062000_ppi_QC2.nc
+working on 2025-03-21 06:25:00
+Computed 'corrected_reflectivity_3x3grid_variance'.
+Computed 'corrected_reflectivity_3x3grid_count'.
+Successfully saved: /scratch/v46/sg3241/tmp/UnzippedRadarFiles/QC2/Radar106/2025/106_20250321_ppi/106_20250321_062500_ppi_QC2.nc
+working on 2025-03-21 06:30:00
+Computed 'corrected_reflectivity_3x3grid_variance'.
+Computed 'corrected_reflectivity_3x3grid_count'.
+Successfully saved: /scratch/v46/sg3241/tmp/UnzippedRadarFiles/QC2/Radar106/2025/106_20250321_ppi/106_20250321_063000_ppi_QC2.nc
+working on 2025-03-21 06:35:00
+Computed 'corrected_reflectivity_3x3grid_variance'.
+Computed 'corrected_reflectivity_3x3grid_count'.
+Successfully saved: /scratch/v46/sg3241/tmp/UnzippedRadarFiles/QC2/Radar106/2025/106_20250321_ppi/106_20250321_063500_ppi_QC2.nc
+working on 2025-03-21 06:40:00
+Computed 'corrected_reflectivity_3x3grid_variance'.
+Computed 'corrected_reflectivity_3x3grid_count'.
+Successfully saved: /scratch/v46/sg3241/tmp/UnzippedRadarFiles/QC2/Radar106/2025/106_20250321_ppi/106_20250321_064000_ppi_QC2.nc
+working on 2025-03-21 06:45:00
+Computed 'corrected_reflectivity_3x3grid_variance'.
+Computed 'corrected_reflectivity_3x3grid_count'.
+Successfully saved: /scratch/v46/sg3241/tmp/UnzippedRadarFiles/QC2/Radar106/2025/106_20250321_ppi/106_20250321_064500_ppi_QC2.nc
+working on 2025-03-21 06:50:00
+Computed 'corrected_reflectivity_3x3grid_variance'.
+Computed 'corrected_reflectivity_3x3grid_count'.
+Successfully saved: /scratch/v46/sg3241/tmp/UnzippedRadarFiles/QC2/Radar106/2025/106_20250321_ppi/106_20250321_065000_ppi_QC2.nc
+working on 2025-03-21 06:55:00
+Computed 'corrected_reflectivity_3x3grid_variance'.
+Computed 'corrected_reflectivity_3x3grid_count'.
+Successfully saved: /scratch/v46/sg3241/tmp/UnzippedRadarFiles/QC2/Radar106/2025/106_20250321_ppi/106_20250321_065500_ppi_QC2.nc
+working on 06:00:00
+Gridding fields: ['corrected_reflectivity', 'corrected_cross_correlation_ratio', 'corrected_differential_reflectivity', 'corrected_specific_differential_phase', 'corrected_differential_phase', 'radar_echo_classification', 'corrected_velocity']
+Radius of influence set to 2285.9040174612037 m.
+Took:  14.08828353881836
+Creating Folder: /scratch/v46/sg3241/tmp/CustomRadarGrids/QC2/Radar106/20250321/
+working on 06:05:00
+Gridding fields: ['corrected_reflectivity', 'corrected_cross_correlation_ratio', 'corrected_differential_reflectivity', 'corrected_specific_differential_phase', 'corrected_differential_phase', 'radar_echo_classification', 'corrected_velocity']
+Radius of influence set to 2279.775412896898 m.
+Took:  14.08466362953186
+working on 06:10:00
+Gridding fields: ['corrected_reflectivity', 'corrected_cross_correlation_ratio', 'corrected_differential_reflectivity', 'corrected_specific_differential_phase', 'corrected_differential_phase', 'radar_echo_classification', 'corrected_velocity']
+Radius of influence set to 2292.0324235860403 m.
+Took:  13.960016012191772
+working on 06:15:00
+Gridding fields: ['corrected_reflectivity', 'corrected_cross_correlation_ratio', 'corrected_differential_reflectivity', 'corrected_specific_differential_phase', 'corrected_differential_phase', 'radar_echo_classification', 'corrected_velocity']
+Radius of influence set to 2285.9040174612037 m.
+Took:  14.050772905349731
+working on 06:20:00
+Gridding fields: ['corrected_reflectivity', 'corrected_cross_correlation_ratio', 'corrected_differential_reflectivity', 'corrected_specific_differential_phase', 'corrected_differential_phase', 'radar_echo_classification', 'corrected_velocity']
+Radius of influence set to 2285.9040174612037 m.
+Took:  14.051640033721924
+working on 06:25:00
+Gridding fields: ['corrected_reflectivity', 'corrected_cross_correlation_ratio', 'corrected_differential_reflectivity', 'corrected_specific_differential_phase', 'corrected_differential_phase', 'radar_echo_classification', 'corrected_velocity']
+Radius of influence set to 2273.6470067720616 m.
+Took:  13.97843623161316
+working on 06:30:00
+Gridding fields: ['corrected_reflectivity', 'corrected_cross_correlation_ratio', 'corrected_differential_reflectivity', 'corrected_specific_differential_phase', 'corrected_differential_phase', 'radar_echo_classification', 'corrected_velocity']
+Radius of influence set to 2285.9040174612037 m.
+Took:  13.60979437828064
+working on 06:35:00
+Gridding fields: ['corrected_reflectivity', 'corrected_cross_correlation_ratio', 'corrected_differential_reflectivity', 'corrected_specific_differential_phase', 'corrected_differential_phase', 'radar_echo_classification', 'corrected_velocity']
+Radius of influence set to 2279.775412896898 m.
+Took:  13.539507389068604
+working on 06:40:00
+Gridding fields: ['corrected_reflectivity', 'corrected_cross_correlation_ratio', 'corrected_differential_reflectivity', 'corrected_specific_differential_phase', 'corrected_differential_phase', 'radar_echo_classification', 'corrected_velocity']
+Radius of influence set to 2279.775412896898 m.
+Took:  13.40829086303711
+working on 06:45:00
+Gridding fields: ['corrected_reflectivity', 'corrected_cross_correlation_ratio', 'corrected_differential_reflectivity', 'corrected_specific_differential_phase', 'corrected_differential_phase', 'radar_echo_classification', 'corrected_velocity']
+Radius of influence set to 2298.160829710877 m.
+Took:  13.567636013031006
+working on 06:50:00
+Gridding fields: ['corrected_reflectivity', 'corrected_cross_correlation_ratio', 'corrected_differential_reflectivity', 'corrected_specific_differential_phase', 'corrected_differential_phase', 'radar_echo_classification', 'corrected_velocity']
+Radius of influence set to 2279.775412896898 m.
+Took:  13.081086158752441
+working on 06:55:00
+Gridding fields: ['corrected_reflectivity', 'corrected_cross_correlation_ratio', 'corrected_differential_reflectivity', 'corrected_specific_differential_phase', 'corrected_differential_phase', 'radar_echo_classification', 'corrected_velocity']
+Radius of influence set to 2279.775412896898 m.
+Took:  12.172638177871704
+Working on 06:00:00
+Output written to: /scratch/v46/sg3241/tmp/PyFLEXTRKRnetCDFs/V5/QC2/Radar106/2025/20250321/SingleTimes/cellidfile_20250321_060000.nc
+Working on 06:05:00
+Output written to: /scratch/v46/sg3241/tmp/PyFLEXTRKRnetCDFs/V5/QC2/Radar106/2025/20250321/SingleTimes/cellidfile_20250321_060500.nc
+Working on 06:10:00
+Output written to: /scratch/v46/sg3241/tmp/PyFLEXTRKRnetCDFs/V5/QC2/Radar106/2025/20250321/SingleTimes/cellidfile_20250321_061000.nc
+Working on 06:15:00
+Output written to: /scratch/v46/sg3241/tmp/PyFLEXTRKRnetCDFs/V5/QC2/Radar106/2025/20250321/SingleTimes/cellidfile_20250321_061500.ncINFO:pyflextrkr.idcells_reflectivity:Squeezed time dimension (size=1) from dataset
+INFO:pyflextrkr.idcells_reflectivity:Using specified vertical coordinate type: height
+INFO:pyflextrkr.idcells_reflectivity:Standardizing z units...
+WARNING:pyflextrkr.idcells_reflectivity:z has no 'units' attribute and no override provided
+WARNING:pyflextrkr.idcells_reflectivity:Assuming z is already in standard units (m)
+INFO:pyflextrkr.idcells_reflectivity:z_coord unit standardization: no conversion (no units attribute)
+INFO:pyflextrkr.idcells_reflectivity:No terrain file specified. Using default surface height: 0.0 m
+INFO:pyflextrkr.idcells_reflectivity:Standardizing sfc_elev units...
+WARNING:pyflextrkr.idcells_reflectivity:sfc_elev has no 'units' attribute and no override provided
+WARNING:pyflextrkr.idcells_reflectivity:Assuming sfc_elev is already in standard units (m)
+INFO:pyflextrkr.idcells_reflectivity:sfc_elev unit standardization: no conversion (no units attribute)
+INFO:pyflextrkr.idcells_reflectivity:/scratch/v46/sg3241/tmp/PyFLEXTRKRnetCDFs/V5/QC2/Radar106/2025/20250321/SingleTimes/cellidfile_tmp_20250321_062427.nc
+INFO:pyflextrkr.idcells_reflectivity:Squeezed time dimension (size=1) from dataset
+INFO:pyflextrkr.idcells_reflectivity:Using specified vertical coordinate type: height
+INFO:pyflextrkr.idcells_reflectivity:Standardizing z units...
+WARNING:pyflextrkr.idcells_reflectivity:z has no 'units' attribute and no override provided
+WARNING:pyflextrkr.idcells_reflectivity:Assuming z is already in standard units (m)
+INFO:pyflextrkr.idcells_reflectivity:z_coord unit standardization: no conversion (no units attribute)
+INFO:pyflextrkr.idcells_reflectivity:No terrain file specified. Using default surface height: 0.0 m
+INFO:pyflextrkr.idcells_reflectivity:Standardizing sfc_elev units...
+WARNING:pyflextrkr.idcells_reflectivity:sfc_elev has no 'units' attribute and no override provided
+WARNING:pyflextrkr.idcells_reflectivity:Assuming sfc_elev is already in standard units (m)
+INFO:pyflextrkr.idcells_reflectivity:sfc_elev unit standardization: no conversion (no units attribute)
+INFO:pyflextrkr.idcells_reflectivity:/scratch/v46/sg3241/tmp/PyFLEXTRKRnetCDFs/V5/QC2/Radar106/2025/20250321/SingleTimes/cellidfile_tmp_20250321_062927.nc
+INFO:pyflextrkr.idcells_reflectivity:Squeezed time dimension (size=1) from dataset
+INFO:pyflextrkr.idcells_reflectivity:Using specified vertical coordinate type: height
+INFO:pyflextrkr.idcells_reflectivity:Standardizing z units...
+WARNING:pyflextrkr.idcells_reflectivity:z has no 'units' attribute and no override provided
+WARNING:pyflextrkr.idcells_reflectivity:Assuming z is already in standard units (m)
+INFO:pyflextrkr.idcells_reflectivity:z_coord unit standardization: no conversion (no units attribute)
+INFO:pyflextrkr.idcells_reflectivity:No terrain file specified. Using default surface height: 0.0 m
+INFO:pyflextrkr.idcells_reflectivity:Standardizing sfc_elev units...
+WARNING:pyflextrkr.idcells_reflectivity:sfc_elev has no 'units' attribute and no override provided
+WARNING:pyflextrkr.idcells_reflectivity:Assuming sfc_elev is already in standard units (m)
+INFO:pyflextrkr.idcells_reflectivity:sfc_elev unit standardization: no conversion (no units attribute)
+INFO:pyflextrkr.idcells_reflectivity:/scratch/v46/sg3241/tmp/PyFLEXTRKRnetCDFs/V5/QC2/Radar106/2025/20250321/SingleTimes/cellidfile_tmp_20250321_063427.nc
+INFO:pyflextrkr.idcells_reflectivity:Squeezed time dimension (size=1) from dataset
+INFO:pyflextrkr.idcells_reflectivity:Using specified vertical coordinate type: height
+INFO:pyflextrkr.idcells_reflectivity:Standardizing z units...
+WARNING:pyflextrkr.idcells_reflectivity:z has no 'units' attribute and no override provided
+WARNING:pyflextrkr.idcells_reflectivity:Assuming z is already in standard units (m)
+INFO:pyflextrkr.idcells_reflectivity:z_coord unit standardization: no conversion (no units attribute)
+INFO:pyflextrkr.idcells_reflectivity:No terrain file specified. Using default surface height: 0.0 m
+INFO:pyflextrkr.idcells_reflectivity:Standardizing sfc_elev units...
+WARNING:pyflextrkr.idcells_reflectivity:sfc_elev has no 'units' attribute and no override provided
+WARNING:pyflextrkr.idcells_reflectivity:Assuming sfc_elev is already in standard units (m)
+INFO:pyflextrkr.idcells_reflectivity:sfc_elev unit standardization: no conversion (no units attribute)
+INFO:pyflextrkr.idcells_reflectivity:/scratch/v46/sg3241/tmp/PyFLEXTRKRnetCDFs/V5/QC2/Radar106/2025/20250321/SingleTimes/cellidfile_tmp_20250321_063927.nc
+INFO:pyflextrkr.idcells_reflectivity:Squeezed time dimension (size=1) from dataset
+INFO:pyflextrkr.idcells_reflectivity:Using specified vertical coordinate type: height
+INFO:pyflextrkr.idcells_reflectivity:Standardizing z units...
+WARNING:pyflextrkr.idcells_reflectivity:z has no 'units' attribute and no override provided
+WARNING:pyflextrkr.idcells_reflectivity:Assuming z is already in standard units (m)
+INFO:pyflextrkr.idcells_reflectivity:z_coord unit standardization: no conversion (no units attribute)
+INFO:pyflextrkr.idcells_reflectivity:No terrain file specified. Using default surface height: 0.0 m
+INFO:pyflextrkr.idcells_reflectivity:Standardizing sfc_elev units...
+WARNING:pyflextrkr.idcells_reflectivity:sfc_elev has no 'units' attribute and no override provided
+WARNING:pyflextrkr.idcells_reflectivity:Assuming sfc_elev is already in standard units (m)
+INFO:pyflextrkr.idcells_reflectivity:sfc_elev unit standardization: no conversion (no units attribute)
+INFO:pyflextrkr.idcells_reflectivity:/scratch/v46/sg3241/tmp/PyFLEXTRKRnetCDFs/V5/QC2/Radar106/2025/20250321/SingleTimes/cellidfile_tmp_20250321_064428.nc
+INFO:pyflextrkr.idcells_reflectivity:Squeezed time dimension (size=1) from dataset
+INFO:pyflextrkr.idcells_reflectivity:Using specified vertical coordinate type: height
+INFO:pyflextrkr.idcells_reflectivity:Standardizing z units...
+WARNING:pyflextrkr.idcells_reflectivity:z has no 'units' attribute and no override provided
+WARNING:pyflextrkr.idcells_reflectivity:Assuming z is already in standard units (m)
+INFO:pyflextrkr.idcells_reflectivity:z_coord unit standardization: no conversion (no units attribute)
+INFO:pyflextrkr.idcells_reflectivity:No terrain file specified. Using default surface height: 0.0 m
+INFO:pyflextrkr.idcells_reflectivity:Standardizing sfc_elev units...
+WARNING:pyflextrkr.idcells_reflectivity:sfc_elev has no 'units' attribute and no override provided
+WARNING:pyflextrkr.idcells_reflectivity:Assuming sfc_elev is already in standard units (m)
+INFO:pyflextrkr.idcells_reflectivity:sfc_elev unit standardization: no conversion (no units attribute)
+INFO:pyflextrkr.idcells_reflectivity:/scratch/v46/sg3241/tmp/PyFLEXTRKRnetCDFs/V5/QC2/Radar106/2025/20250321/SingleTimes/cellidfile_tmp_20250321_064927.nc
+INFO:pyflextrkr.idcells_reflectivity:Squeezed time dimension (size=1) from dataset
+INFO:pyflextrkr.idcells_reflectivity:Using specified vertical coordinate type: height
+INFO:pyflextrkr.idcells_reflectivity:Standardizing z units...
+WARNING:pyflextrkr.idcells_reflectivity:z has no 'units' attribute and no override provided
+WARNING:pyflextrkr.idcells_reflectivity:Assuming z is already in standard units (m)
+INFO:pyflextrkr.idcells_reflectivity:z_coord unit standardization: no conversion (no units attribute)
+INFO:pyflextrkr.idcells_reflectivity:No terrain file specified. Using default surface height: 0.0 m
+INFO:pyflextrkr.idcells_reflectivity:Standardizing sfc_elev units...
+WARNING:pyflextrkr.idcells_reflectivity:sfc_elev has no 'units' attribute and no override provided
+WARNING:pyflextrkr.idcells_reflectivity:Assuming sfc_elev is already in standard units (m)
+INFO:pyflextrkr.idcells_reflectivity:sfc_elev unit standardization: no conversion (no units attribute)
+INFO:pyflextrkr.idcells_reflectivity:/scratch/v46/sg3241/tmp/PyFLEXTRKRnetCDFs/V5/QC2/Radar106/2025/20250321/SingleTimes/cellidfile_tmp_20250321_065428.nc
+INFO:pyflextrkr.idcells_reflectivity:Squeezed time dimension (size=1) from dataset
+INFO:pyflextrkr.idcells_reflectivity:Using specified vertical coordinate type: height
+INFO:pyflextrkr.idcells_reflectivity:Standardizing z units...
+WARNING:pyflextrkr.idcells_reflectivity:z has no 'units' attribute and no override provided
+WARNING:pyflextrkr.idcells_reflectivity:Assuming z is already in standard units (m)
+INFO:pyflextrkr.idcells_reflectivity:z_coord unit standardization: no conversion (no units attribute)
+INFO:pyflextrkr.idcells_reflectivity:No terrain file specified. Using default surface height: 0.0 m
+INFO:pyflextrkr.idcells_reflectivity:Standardizing sfc_elev units...
+WARNING:pyflextrkr.idcells_reflectivity:sfc_elev has no 'units' attribute and no override provided
+WARNING:pyflextrkr.idcells_reflectivity:Assuming sfc_elev is already in standard units (m)
+INFO:pyflextrkr.idcells_reflectivity:sfc_elev unit standardization: no conversion (no units attribute)
+INFO:pyflextrkr.idcells_reflectivity:/scratch/v46/sg3241/tmp/PyFLEXTRKRnetCDFs/V5/QC2/Radar106/2025/20250321/SingleTimes/cellidfile_tmp_20250321_065926.nc
+INFO:pyflextrkr.tracksingle_driver:Tracking sequential pairs of idfeature files
+INFO:pyflextrkr.tracksingle_driver:Total number of files to process: 12
+INFO:pyflextrkr.tracksingle_drift:/scratch/v46/sg3241/tmp/PyFLEXTRKRnetCDFs/V5/QC2/Radar106/2025/20250321/SingleTimes/track_20250321_060500.nc
+INFO:pyflextrkr.tracksingle_drift:/scratch/v46/sg3241/tmp/PyFLEXTRKRnetCDFs/V5/QC2/Radar106/2025/20250321/SingleTimes/track_20250321_061000.nc
+INFO:pyflextrkr.tracksingle_drift:/scratch/v46/sg3241/tmp/PyFLEXTRKRnetCDFs/V5/QC2/Radar106/2025/20250321/SingleTimes/track_20250321_061500.nc
+INFO:pyflextrkr.tracksingle_drift:/scratch/v46/sg3241/tmp/PyFLEXTRKRnetCDFs/V5/QC2/Radar106/2025/20250321/SingleTimes/track_20250321_062000.nc
+INFO:pyflextrkr.tracksingle_drift:/scratch/v46/sg3241/tmp/PyFLEXTRKRnetCDFs/V5/QC2/Radar106/2025/20250321/SingleTimes/track_20250321_062500.nc
+INFO:pyflextrkr.tracksingle_drift:/scratch/v46/sg3241/tmp/PyFLEXTRKRnetCDFs/V5/QC2/Radar106/2025/20250321/SingleTimes/track_20250321_063000.nc
+INFO:pyflextrkr.tracksingle_drift:/scratch/v46/sg3241/tmp/PyFLEXTRKRnetCDFs/V5/QC2/Radar106/2025/20250321/SingleTimes/track_20250321_063500.nc
+INFO:pyflextrkr.tracksingle_drift:/scratch/v46/sg3241/tmp/PyFLEXTRKRnetCDFs/V5/QC2/Radar106/2025/20250321/SingleTimes/track_20250321_064000.nc
+INFO:pyflextrkr.tracksingle_drift:/scratch/v46/sg3241/tmp/PyFLEXTRKRnetCDFs/V5/QC2/Radar106/2025/20250321/SingleTimes/track_20250321_064500.nc
+INFO:pyflextrkr.tracksingle_drift:/scratch/v46/sg3241/tmp/PyFLEXTRKRnetCDFs/V5/QC2/Radar106/2025/20250321/SingleTimes/track_20250321_065000.nc
+INFO:pyflextrkr.tracksingle_drift:/scratch/v46/sg3241/tmp/PyFLEXTRKRnetCDFs/V5/QC2/Radar106/2025/20250321/SingleTimes/track_20250321_065500.nc
+INFO:pyflextrkr.tracksingle_driver:Done with tracking sequential pairs of idfeature files
+INFO:pyflextrkr.gettracks:Tracking features sequentially from single track files
+INFO:pyflextrkr.ft_utilities:Scanning track files to find maximum number of clouds...
+INFO:pyflextrkr.ft_utilities:Scanning 11 track files...
+INFO:pyflextrkr.ft_utilities:Maximum nclouds_ref: 70
+INFO:pyflextrkr.ft_utilities:Maximum nclouds_new: 70
+INFO:pyflextrkr.ft_utilities:Maximum nclouds across all files: 70
+INFO:pyflextrkr.gettracks:Total number of files to process: 11
+INFO:pyflextrkr.gettracks:track_20250321_060500.nc
+INFO:pyflextrkr.gettracks:track_20250321_061000.nc
+INFO:pyflextrkr.gettracks:track_20250321_061500.nc
+INFO:pyflextrkr.gettracks:track_20250321_062000.nc
+INFO:pyflextrkr.gettracks:track_20250321_062500.nc
+INFO:pyflextrkr.gettracks:track_20250321_063000.nc
+INFO:pyflextrkr.gettracks:track_20250321_063500.nc
+INFO:pyflextrkr.gettracks:track_20250321_064000.nc
+INFO:pyflextrkr.gettracks:track_20250321_064500.nc
+INFO:pyflextrkr.gettracks:track_20250321_065000.nc
+INFO:pyflextrkr.gettracks:track_20250321_065500.nc
+INFO:pyflextrkr.gettracks:/scratch/v46/sg3241/tmp/PyFLEXTRKRnetCDFs/V5/QC2/Radar106/Period_20250321_20250321/Stats/tracknumbers_20250321.060000_20250321.065500.nc
+INFO:pyflextrkr.gettracks:Get track numbers done.
+INFO:pyflextrkr.trackstats_driver:Calculating track statistics
+INFO:pyflextrkr.trackstats_driver:Total number of files to process: 12
+INFO:pyflextrkr.trackstats_func:cellidfile_20250321_060000.nc
+INFO:pyflextrkr.trackstats_func:cellidfile_20250321_060500.nc
+INFO:pyflextrkr.trackstats_func:cellidfile_20250321_061000.nc
+INFO:pyflextrkr.trackstats_func:cellidfile_20250321_061500.nc
+INFO:pyflextrkr.trackstats_func:cellidfile_20250321_062000.nc
+INFO:pyflextrkr.trackstats_func:cellidfile_20250321_062500.nc
+INFO:pyflextrkr.trackstats_func:cellidfile_20250321_063000.nc
+INFO:pyflextrkr.trackstats_func:cellidfile_20250321_063500.nc
+INFO:pyflextrkr.trackstats_func:cellidfile_20250321_064000.nc
+INFO:pyflextrkr.trackstats_func:cellidfile_20250321_064500.nc
+INFO:pyflextrkr.trackstats_func:cellidfile_20250321_065000.nc
+INFO:pyflextrkr.trackstats_func:cellidfile_20250321_065500.nc
+INFO:pyflextrkr.trackstats_driver:/scratch/v46/sg3241/tmp/PyFLEXTRKRnetCDFs/V5/QC2/Radar106/Period_20250321_20250321/Stats/trackstats_20250321.060000_20250321.065500.nc
+INFO:pyflextrkr.trackstats_driver:/scratch/v46/sg3241/tmp/PyFLEXTRKRnetCDFs/V5/QC2/Radar106/Period_20250321_20250321/Stats/trackstats_sparse_20250321.060000_20250321.065500.nc
+
+Working on 06:20:00
+Output written to: /scratch/v46/sg3241/tmp/PyFLEXTRKRnetCDFs/V5/QC2/Radar106/2025/20250321/SingleTimes/cellidfile_20250321_062000.nc
+Working on 06:25:00
+Output written to: /scratch/v46/sg3241/tmp/PyFLEXTRKRnetCDFs/V5/QC2/Radar106/2025/20250321/SingleTimes/cellidfile_20250321_062500.nc
+Working on 06:30:00
+Output written to: /scratch/v46/sg3241/tmp/PyFLEXTRKRnetCDFs/V5/QC2/Radar106/2025/20250321/SingleTimes/cellidfile_20250321_063000.nc
+Working on 06:35:00
+Output written to: /scratch/v46/sg3241/tmp/PyFLEXTRKRnetCDFs/V5/QC2/Radar106/2025/20250321/SingleTimes/cellidfile_20250321_063500.nc
+Working on 06:40:00
+Output written to: /scratch/v46/sg3241/tmp/PyFLEXTRKRnetCDFs/V5/QC2/Radar106/2025/20250321/SingleTimes/cellidfile_20250321_064000.nc
+Working on 06:45:00
+Output written to: /scratch/v46/sg3241/tmp/PyFLEXTRKRnetCDFs/V5/QC2/Radar106/2025/20250321/SingleTimes/cellidfile_20250321_064500.nc
+Working on 06:50:00
+Output written to: /scratch/v46/sg3241/tmp/PyFLEXTRKRnetCDFs/V5/QC2/Radar106/2025/20250321/SingleTimes/cellidfile_20250321_065000.nc
+Working on 06:55:00
+Output written to: /scratch/v46/sg3241/tmp/PyFLEXTRKRnetCDFs/V5/QC2/Radar106/2025/20250321/SingleTimes/cellidfile_20250321_065500.nc
+Found 12 total cellid files
+Found 12 cellid files within period
+Time range: 2025-03-21 06:00:00 to 2025-03-21 06:55:00
+Epoch seconds: 1742536800.0 to 1742540100.0
+
+--- Step 1: tracksingle (pairwise linking) ---
+tracksingle complete.
+
+--- Step 2: gettracknumbers (assemble full tracks) ---
+gettracknumbers complete.
+
+--- Step 3: trackstats (compute statistics) ---
+trackstats complete.
+Output: /scratch/v46/sg3241/tmp/PyFLEXTRKRnetCDFs/V5/QC2/Radar106/Period_20250321_20250321/Stats/trackstats_20250321.060000_20250321.065500.nc
+
+======================================================================================
+                  Resource Usage on 2026-11-17 17:02:33:
+   Job Id:             184279931.gadi-pbs
+   Project:            v46
+   Exit Status:        0
+   Service Units:      0.69
+   NCPUs Requested:    1                   CPU Time Used: 00:04:32        
+   Memory Requested:   16.0GB                Memory Used: 13.22GB         
+   Walltime Requested: 01:00:00            Walltime Used: 00:05:09        
+   JobFS Requested:    100.0MB                JobFS Used: 37.0B           
+======================================================================================
