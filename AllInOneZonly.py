@@ -2,6 +2,8 @@
 # AllInOneZonly.py
 # TITLE
 
+# This python file is a conglomeration of all of the jupyter notebooks I have created which quality control the original radar data, grid the ppi data, and run PyFLEXTRKR on them
+
 # SPECIAL METHOD TO IMPORT CUSTOM FUNCTIONS AND ELEVATION FROM LOCAL DIRECTORY
 import sys
 sys.path.append('/home/563/sg3241/Notebooks/PhD/CustomFunctions')
@@ -59,16 +61,30 @@ from cartopy.io import shapereader
 # for adding lat/lon gridlines on plots
 from cartopy.mpl.gridliner import LATITUDE_FORMATTER, LONGITUDE_FORMATTER 
 
-# BEFORE ANY STEPS
+import argparse # for grabbing variables values from a shell script
 
-GlobalRadarIDno = '19'
+# GRAB THESE VARIABLES FROM A SHELL SCRIPT
+parser = argparse.ArgumentParser()
+parser.add_argument('--radar_id', type=str)
+parser.add_argument('--year',     type=int)
+parser.add_argument('--month',    type=int)
+parser.add_argument('--day',      type=int)
+parser.add_argument('--start', type=str)
+parser.add_argument('--end',   type=str)
 
-GlobalRadarYear  = 2024
-GlobalRadarMonth = 1
-GlobalRadarDay   = 1
+args = parser.parse_args()
 
-GlobalLoopStartTime = '00:00'
-GlobalLoopEndTime   = '23:55'
+GlobalRadarIDno     = args.radar_id
+GlobalRadarYear     = args.year
+GlobalRadarMonth    = args.month
+GlobalRadarDay      = args.day
+# Convert HHMM string back to HH:MM format
+GlobalLoopStartTime = args.start[:2] + ':' + args.start[2:]  # '0000' -> '00:00'
+GlobalLoopEndTime   = args.end[:2]   + ':' + args.end[2:]    # '2355' -> '23:55'
+
+
+
+
 
 
 # GRIDDING STEP ONE
@@ -885,22 +901,22 @@ print("\n--- Step 1: tracksingle (pairwise linking) ---")
 tracksingle_driver(config)
 print("tracksingle complete.")
 
+# SKIP THESE STEPS IF YOU ARE SUBMITTING ONE JOB FOR EACH DAY SINCE THEY WILL ONLY TRACK OBJECTS FOR 24-HOURS BEFORE ASSUMING THEY GO OUT OF EXISTENCE EVERY 24 HOURS
+
+# # FEATURE TRACKING STEP TWO
+# # ASSEMBLE FULL TRACKS
+
+# # ── Step 2: Assemble pairs into full tracks ────────────────────────────────────
+# print("\n--- Step 2: gettracknumbers (assemble full tracks) ---")
+# gettracknumbers(config)
+# print("gettracknumbers complete.")
 
 
-# FEATURE TRACKING STEP TWO
-# ASSEMBLE FULL TRACKS
+# # FEATURE TRACKING STEP THREE
+# # COMPUTE TRACK STATISTICS
 
-# ── Step 2: Assemble pairs into full tracks ────────────────────────────────────
-print("\n--- Step 2: gettracknumbers (assemble full tracks) ---")
-gettracknumbers(config)
-print("gettracknumbers complete.")
-
-
-# FEATURE TRACKING STEP THREE
-# COMPUTE TRACK STATISTICS
-
-# ── Step 3: Track statistics ───────────────────────────────────────────────────
-print("\n--- Step 3: trackstats (compute statistics) ---")
-trackstats_outfile = trackstats_driver(config)
-print(f"trackstats complete.")
-print(f"Output: {trackstats_outfile}")
+# # ── Step 3: Track statistics ───────────────────────────────────────────────────
+# print("\n--- Step 3: trackstats (compute statistics) ---")
+# trackstats_outfile = trackstats_driver(config)
+# print(f"trackstats complete.")
+# print(f"Output: {trackstats_outfile}")
