@@ -3,7 +3,7 @@
 #PBS -q normal
 #PBS -l ncpus=4
 #PBS -l mem=64GB
-#PBS -l walltime=04:00:00
+#PBS -l walltime=01:00:00
 #PBS -l storage=scratch/v46+gdata/v46+gdata/xp65+gdata/rq0
 #PBS -l wd
 #PBS -j oe
